@@ -1,0 +1,9 @@
+[project]
+name = "DevMind AI"
+phase = "Phase 0"
+
+[guardrails]
+primary_database = "MongoDB"
+docker_allowed = false
+training_allowed = false
+paid_api_required = false

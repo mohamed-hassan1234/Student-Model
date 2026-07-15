@@ -1,0 +1,33 @@
+{
+  "name": "devmind-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DevMind AI Phase 0 engineering foundation.",
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "install:python": "uv sync",
+    "install:web": "npm --prefix apps/web install",
+    "env:check": "uv run python scripts/check_environment.py",
+    "api:dev": "uv run uvicorn devmind_api.main:app --host 127.0.0.1 --port 8000",
+    "web:dev": "npm --prefix apps/web run dev",
+    "worker:dev": "uv run python -m devmind_worker.runner",
+    "dev": "powershell -ExecutionPolicy Bypass -File scripts/dev.ps1",
+    "stop": "powershell -ExecutionPolicy Bypass -File scripts/stop.ps1",
+    "backend:format": "uv run ruff format --check .",
+    "backend:lint": "uv run ruff check .",
+    "backend:typecheck": "uv run mypy",
+    "backend:test": "uv run pytest",
+    "frontend:lint": "npm --prefix apps/web run lint",
+    "frontend:typecheck": "npm --prefix apps/web run typecheck",
+    "frontend:test": "npm --prefix apps/web run test:run",
+    "frontend:build": "npm --prefix apps/web run build",
+    "validate": "powershell -ExecutionPolicy Bypass -File scripts/validate.ps1",
+    "mongodb:bootstrap": "uv run python scripts/bootstrap_mongodb.py",
+    "mongodb:check": "uv run python scripts/check_environment.py --mongodb-only"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

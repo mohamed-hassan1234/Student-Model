@@ -1,0 +1,11 @@
+{
+  "system_schema_versions": {
+    "required": ["component", "version", "updated_at"]
+  },
+  "system_audit_events": {
+    "required": ["event_type", "created_at"]
+  },
+  "system_jobs": {
+    "required": ["job_type", "state", "attempts", "created_at", "updated_at"]
+  }
+}

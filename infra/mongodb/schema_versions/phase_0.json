@@ -1,0 +1,9 @@
+{
+  "component": "phase_0_foundation",
+  "version": 1,
+  "collections": [
+    "system_schema_versions",
+    "system_audit_events",
+    "system_jobs"
+  ]
+}
