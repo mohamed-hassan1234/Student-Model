@@ -10,3 +10,7 @@ Start here:
 - Local setup: `docs/development/LOCAL_SETUP.md`
 - Validation: `docs/development/VALIDATION.md`
 - Current status: `docs/status/PROJECT_STATUS.md`
+- Source registry: `docs/architecture/SOURCE_REGISTRY.md`
+- Ingestion: `docs/architecture/INGESTION_ARCHITECTURE.md`
+- RAG: `docs/architecture/RAG_ARCHITECTURE.md`
+- API: `docs/development/API.md`

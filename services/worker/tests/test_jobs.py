@@ -58,8 +58,9 @@ async def test_job_state_transitions() -> None:
     lease = await repository.claim_next("worker-1")
     assert lease is not None
     assert lease.job_id == job_id
-    assert lease.state is JobState.RUNNING
+    assert lease.state is JobState.CLAIMED
     assert lease.attempts == 1
+    assert lease.max_attempts == 3
 
     await repository.complete(job_id)
 

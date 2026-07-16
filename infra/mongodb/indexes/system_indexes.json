@@ -9,5 +9,53 @@
   "system_jobs": [
     { "keys": [["state", 1], ["created_at", 1]], "name": "state_created_at" },
     { "keys": [["lease_until", 1]], "name": "lease_until" }
+  ],
+  "sources": [
+    { "keys": [["source_id", 1]], "unique": true, "name": "uniq_source_id" },
+    { "keys": [["source_status", 1]], "name": "source_status" },
+    { "keys": [["technology_topic", 1]], "name": "technology_topic" },
+    { "keys": [["content_checksum", 1]], "name": "content_checksum" }
+  ],
+  "source_reviews": [
+    { "keys": [["source_id", 1], ["created_at", 1]], "name": "source_review_history" }
+  ],
+  "documents": [
+    { "keys": [["source_id", 1]], "name": "document_source" },
+    { "keys": [["content_hash", 1]], "name": "document_content_hash" }
+  ],
+  "document_versions": [
+    { "keys": [["document_id", 1], ["created_at", 1]], "name": "document_version_history" }
+  ],
+  "document_chunks": [
+    { "keys": [["source_id", 1], ["document_id", 1]], "name": "chunk_source_document" },
+    { "keys": [["content_hash", 1]], "unique": true, "name": "uniq_chunk_content_hash" },
+    { "keys": [["technology_topic", 1]], "name": "chunk_topic" },
+    { "keys": [["chunk.text", "text"]], "name": "chunk_text" }
+  ],
+  "ingestion_jobs": [
+    { "keys": [["state", 1], ["created_at", 1]], "name": "ingestion_state_created" },
+    { "keys": [["lease_until", 1]], "name": "ingestion_lease_until" }
+  ],
+  "ingestion_events": [
+    { "keys": [["source_id", 1], ["created_at", 1]], "name": "ingestion_event_source" }
+  ],
+  "conversations": [
+    { "keys": [["created_at", 1]], "name": "conversation_created" }
+  ],
+  "messages": [
+    { "keys": [["conversation_id", 1], ["created_at", 1]], "name": "message_conversation" }
+  ],
+  "retrieval_events": [
+    { "keys": [["created_at", 1]], "name": "retrieval_created" }
+  ],
+  "answer_evidence": [
+    { "keys": [["retrieval_event_id", 1]], "name": "answer_evidence_retrieval" }
+  ],
+  "vector_index_metadata": [
+    { "keys": [["provider", 1]], "name": "vector_provider" }
+  ],
+  "uploaded_source_files": [
+    { "keys": [["source_id", 1], ["upload_timestamp", 1]], "name": "uploaded_source_history" },
+    { "keys": [["sha256_checksum", 1]], "name": "uploaded_source_checksum" }
   ]
 }

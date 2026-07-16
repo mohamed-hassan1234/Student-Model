@@ -37,6 +37,7 @@ async def run_worker() -> None:
             if lease is None:
                 await asyncio.sleep(2)
                 continue
+            await repository.mark_running(lease.job_id, worker_id)
             await repository.complete(lease.job_id)
     finally:
         await manager.close()

@@ -18,7 +18,7 @@ All persisted timestamps must be timezone-aware UTC values at the application bo
 
 ## Index Strategy
 
-Indexes are declared in `infra/mongodb/indexes` and applied idempotently by `scripts/bootstrap_mongodb.py`. Phase 0 indexes support schema-version lookup, audit review by event/time, and job queue claiming.
+Indexes are declared in `infra/mongodb/indexes` and applied idempotently by `scripts/bootstrap_mongodb.py`. Phase 1 indexes support source lookup, source status/topic filtering, document and chunk hashes, chunk text search, ingestion state, retrieval events, answer evidence, and vector metadata.
 
 ## Unique Index Strategy
 
@@ -26,15 +26,15 @@ Unique indexes should be used for true invariants only. Phase 0 uses a unique in
 
 ## Text Index Considerations
 
-Text indexes are not created in Phase 0. Future search requirements must document language, scoring, source policy, and retention implications.
+Phase 1 creates a text index on chunk text for optional keyword retrieval. Vector retrieval remains provider-driven.
 
 ## Vector Field Planning
 
-Vector fields are not created in Phase 0. Future vector search must be documented with provider, dimensionality, storage cost, provenance, and fallback strategy. pgvector is prohibited.
+Phase 1 stores embedding vectors inside `document_chunks.embedding` with provider, model, dimensions, content hash, and re-embedding status. pgvector is prohibited.
 
 ## GridFS Planning
 
-Durable file storage should use MongoDB GridFS where appropriate. Phase 0 defines a `FileStore` and `GridFsFileStore` boundary but does not implement upload workflows.
+Durable uploaded source files use MongoDB GridFS through the `GridFsFileStore` adapter. Upload metadata is recorded in `uploaded_source_files`.
 
 ## Schema Validation Strategy
 

@@ -2,80 +2,81 @@
 
 ## Current Phase
 
-Phase 0: repository and engineering foundation.
+Phase 1: Technology Student Knowledge and RAG MVP.
 
 ## Current Repository State
 
-The repository has been scaffolded with backend, frontend, MongoDB infrastructure, worker foundation, model gateway foundation, local scripts, CI, and documentation. Existing `project.md` was preserved.
+Technology Student v0.1 is implemented as a local-first approved-source RAG MVP. The repository includes source registry, policy checks, secure URL/file validation, parsers, normalization, prompt-injection marking, deterministic chunking, mock/local embedding and model provider foundations, MongoDB storage, GridFS upload storage, retrieval, citations, frontend pages, tests, docs, and CI-compatible validation.
 
 ## Completed Work
 
-- Repository structure and guardrails.
-- FastAPI health and readiness foundation.
-- Environment-based configuration and secret redaction.
-- MongoDB async connection manager and readiness ping.
-- MongoDB bootstrap, indexes, validators, schema-version, audit, job, and GridFS boundary foundations.
-- MongoDB-backed worker job-state foundation.
-- Deterministic mock model provider.
-- React status page with API client and tests.
-- Windows and Unix-like local process scripts.
-- GitHub Actions CI without Docker.
-- Architecture, database, security, governance, setup, validation, plan, and status docs.
+- Moved Phase 0 plan to completed and created active Phase 1 plan.
+- Added Technology Student source registry and approval workflow.
+- Added parser pipeline for HTML, PDF text extraction, Markdown, and plain text.
+- Added file and web security validation, including SSRF and executable-file protections.
+- Added prompt-injection risk marking and untrusted-content prompt delimiting.
+- Added deterministic chunking and duplicate chunk detection by content hash.
+- Added embedding-provider abstraction with deterministic mock and Ollama/local HTTP foundation.
+- Added vector-search provider abstraction with MongoDB Vector Search, local FAISS fallback metadata behavior, and deterministic mock retrieval.
+- Added MongoDB repositories for sources, reviews, documents, versions, chunks, ingestion jobs/events, retrieval events, evidence, upload metadata, audit events, and vector metadata.
+- Added GridFS upload storage through `AsyncGridFSBucket`.
+- Added Technology Student RAG answer flow with citations and insufficient-evidence refusal.
+- Added API endpoints under `/api/v1/technology`.
+- Extended React app with Status, Sources, Technology Student, and Curriculum views.
+- Added Phase 1 tests and documentation.
 
 ## Work in Progress
 
-Phase 0 implementation is complete. One post-validation Windows dev-script adjustment was made to prefer `npm.cmd`; it still needs a local rerun because this session can no longer spawn additional PowerShell validation commands.
+Phase 1 MVP implementation and validation are complete. Production hardening remains for later phases.
 
 ## Next Work
 
-After Phase 0, the next recommended task is a Phase 1 architecture decision for approved-source ingestion and human review workflows.
+Create Phase 2: evaluation, source coverage metrics, production-grade retrieval quality, and provider hardening.
 
 ## Known Issues
 
-- `npm install` reported 5 transitive frontend tooling audit findings: 3 moderate, 1 high, and 1 critical. No runtime paid API or production dependency is introduced. Review with `npm audit` before hardening deployment.
-- `scripts/bootstrap_mongodb.py` was not executed in this session because it mutates the configured MongoDB database and the approval reviewer rejected running it without explicit database-target approval.
-- Unix shell script syntax checks could not run because `bash` is not installed in this Windows environment.
-- After the successful full validation run, `scripts/dev.ps1` was updated to prefer `npm.cmd` for Windows `Start-Process`. Rerun the smoke test locally.
+- `npm install` previously reported transitive frontend tooling audit findings. Review with `npm audit` before production hardening.
+- PDF extraction is text-only and does not perform OCR.
+- Real MongoDB Vector Search index provisioning is environment-specific.
+- Local FAISS native dependency packaging is not required by tests and remains an optional environment integration.
+- Authentication and authorization are placeholders for future phases.
 
 ## Validation Results
 
-- `pip install uv`: passed.
-- `uv lock`: passed after constraining Python to `>=3.12,<3.13`.
-- `npm install`: passed and generated `package-lock.json`; audit findings were reported by npm.
+- `uv lock`: passed.
 - `uv sync`: passed.
-- `uv run ruff format --check .`: passed.
-- `uv run ruff check .`: passed.
-- `uv run mypy`: passed.
-- `uv run pytest`: passed with 13 passed and 1 skipped guarded MongoDB integration test.
-- `npm --prefix apps/web run lint`: passed.
-- `npm --prefix apps/web run typecheck`: passed.
-- `npm --prefix apps/web run test:run`: passed with 3 tests.
-- `npm --prefix apps/web run build`: passed.
 - `uv lock --check`: passed.
 - `uv sync --locked`: passed.
-- `uv run python scripts/check_environment.py`: passed, including MongoDB connectivity.
-- Prohibited Docker-file scan with `rg`: passed with no matches.
-- Secret-pattern scan with `rg`: passed with no matches.
-- PowerShell script syntax check: passed before the final `npm.cmd` launcher adjustment.
-- `powershell -ExecutionPolicy Bypass -File scripts/validate.ps1`: passed before the final `npm.cmd` launcher adjustment.
-- API smoke test after `scripts/dev.ps1`: passed with `GET /api/v1/health` returning `{"service":"devmind-api","status":"healthy","version":"0.1.0"}`.
-- Frontend smoke test after the earlier `scripts/dev.ps1`: failed because Windows resolved `npm` to `npm.ps1`; the script was patched to prefer `npm.cmd` but could not be rerun in this session.
+- `uv run ruff format --check .`: passed.
+- `uv run ruff check .`: passed.
+- `uv run mypy`: passed, 39 source files.
+- `uv run pytest`: passed, 32 passed and 1 skipped guarded MongoDB integration test.
+- `npm --prefix apps/web run lint`: passed.
+- `npm --prefix apps/web run typecheck`: passed.
+- `npm --prefix apps/web run test:run`: passed, 6 tests.
+- `npm --prefix apps/web run build`: passed.
+- `powershell -ExecutionPolicy Bypass -File scripts/validate.ps1`: passed.
+- MongoDB connectivity check inside validation: passed.
+- Prohibited Docker-file check inside validation: passed.
+- Secret-pattern scan inside validation: passed.
 
 ## Environment Limitations
 
-- The managed Windows sandbox intermittently failed to spawn PowerShell commands with `CreateProcessAsUserW failed: 1312`. Several validations had to be run outside the sandbox before the session's escalation path became unavailable.
-- `bash` is not installed, so `bash -n scripts/dev.sh`, `bash -n scripts/stop.sh`, and `bash -n scripts/validate.sh` were not executed.
-- MongoDB bootstrap was not run because it would create validators, indexes, and schema-version records in the configured database. Run it manually only after confirming the target database.
-- The frontend dev-script smoke test should be rerun after the `npm.cmd` fix.
+- Unix shell script syntax checks were not run because this is a Windows environment without `bash`.
+- `scripts/bootstrap_mongodb.py` was not executed during final validation because it mutates the configured MongoDB database; run it manually after confirming the target database.
 
 ## Important Decisions
 
-- MongoDB is the primary database.
-- No relational database, Docker, Testcontainers, paid API, model download, training, crawling, or autonomous learning is included.
-- Unit tests use fakes and must remain deterministic.
+- MongoDB remains the primary database and source of truth.
+- Technology Student v0.1 is the only Phase 1 specialist.
+- Tests use mock providers and fakes; no paid API, Ollama, internet access, Docker, or production MongoDB is required.
+- Source content is always treated as untrusted data.
+- Unsupported answers return `insufficient_evidence` rather than unsupported model-memory claims.
 
 ## Pending Human Reviews
 
-- Confirm source-code license owner text.
-- Review source policy and dataset/model governance before future ingestion or training phases.
-- Confirm local MongoDB installation approach for each developer machine.
+- Confirm Apache 2.0 copyright/owner text.
+- Review Phase 1 source approval and governance policy before ingesting real sources.
+- Confirm MongoDB target database before running bootstrap.
+- Review npm audit findings.
+- Review local model and embedding provider choices before enabling non-mock providers.

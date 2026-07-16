@@ -8,6 +8,7 @@ from devmind_api.config import Settings
 from devmind_shared.time import utc_now
 
 SYSTEM_SCHEMA_VERSION = 1
+PHASE_1_SCHEMA_VERSION = 1
 
 
 async def create_indexes(database: Any) -> None:
@@ -31,6 +32,68 @@ async def create_indexes(database: Any) -> None:
     await database["system_jobs"].create_index(
         [("lease_until", ASCENDING)],
         name="lease_until",
+    )
+    await database["sources"].create_index(
+        [("source_id", ASCENDING)], unique=True, name="uniq_source_id"
+    )
+    await database["sources"].create_index([("source_status", ASCENDING)], name="source_status")
+    await database["sources"].create_index(
+        [("technology_topic", ASCENDING)], name="technology_topic"
+    )
+    await database["sources"].create_index(
+        [("content_checksum", ASCENDING)], name="content_checksum"
+    )
+    await database["source_reviews"].create_index(
+        [("source_id", ASCENDING), ("created_at", ASCENDING)], name="source_review_history"
+    )
+    await database["documents"].create_index([("source_id", ASCENDING)], name="document_source")
+    await database["documents"].create_index(
+        [("content_hash", ASCENDING)], name="document_content_hash"
+    )
+    await database["document_versions"].create_index(
+        [("document_id", ASCENDING), ("created_at", ASCENDING)], name="document_version_history"
+    )
+    await database["document_chunks"].create_index(
+        [("source_id", ASCENDING), ("document_id", ASCENDING)], name="chunk_source_document"
+    )
+    await database["document_chunks"].create_index(
+        [("content_hash", ASCENDING)], unique=True, name="uniq_chunk_content_hash"
+    )
+    await database["document_chunks"].create_index(
+        [("technology_topic", ASCENDING)], name="chunk_topic"
+    )
+    await database["document_chunks"].create_index([("chunk.text", "text")], name="chunk_text")
+    await database["ingestion_jobs"].create_index(
+        [("state", ASCENDING), ("created_at", ASCENDING)], name="ingestion_state_created"
+    )
+    await database["ingestion_jobs"].create_index(
+        [("lease_until", ASCENDING)], name="ingestion_lease_until"
+    )
+    await database["ingestion_events"].create_index(
+        [("source_id", ASCENDING), ("created_at", ASCENDING)], name="ingestion_event_source"
+    )
+    await database["conversations"].create_index(
+        [("created_at", ASCENDING)], name="conversation_created"
+    )
+    await database["messages"].create_index(
+        [("conversation_id", ASCENDING), ("created_at", ASCENDING)], name="message_conversation"
+    )
+    await database["retrieval_events"].create_index(
+        [("created_at", ASCENDING)], name="retrieval_created"
+    )
+    await database["answer_evidence"].create_index(
+        [("retrieval_event_id", ASCENDING)], name="answer_evidence_retrieval"
+    )
+    await database["vector_index_metadata"].create_index(
+        [("provider", ASCENDING)], name="vector_provider"
+    )
+    await database["uploaded_source_files"].create_index(
+        [("source_id", ASCENDING), ("upload_timestamp", ASCENDING)],
+        name="uploaded_source_history",
+    )
+    await database["uploaded_source_files"].create_index(
+        [("sha256_checksum", ASCENDING)],
+        name="uploaded_source_checksum",
     )
 
 
@@ -74,6 +137,90 @@ async def create_validators(database: Any) -> None:
                 },
             }
         },
+        "sources": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": [
+                    "source_id",
+                    "name",
+                    "source_status",
+                    "technology_topic",
+                    "created_at",
+                ],
+                "properties": {
+                    "source_id": {"bsonType": "string"},
+                    "name": {"bsonType": "string"},
+                    "source_status": {"bsonType": "string"},
+                    "technology_topic": {"bsonType": "string"},
+                },
+            }
+        },
+        "source_reviews": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": ["source_id", "decision", "created_at"],
+            }
+        },
+        "documents": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": ["source_id", "title", "content_hash"],
+            }
+        },
+        "document_versions": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": ["document_id", "source_id", "content_hash"],
+            }
+        },
+        "document_chunks": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": ["source_id", "document_id", "chunk", "embedding"],
+            }
+        },
+        "ingestion_jobs": {
+            "$jsonSchema": {"bsonType": "object", "required": ["source_id", "state", "created_at"]}
+        },
+        "ingestion_events": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": ["source_id", "event_type", "created_at"],
+            }
+        },
+        "conversations": {"$jsonSchema": {"bsonType": "object", "required": ["created_at"]}},
+        "messages": {
+            "$jsonSchema": {"bsonType": "object", "required": ["conversation_id", "created_at"]}
+        },
+        "retrieval_events": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": ["question", "evidence_status", "created_at"],
+            }
+        },
+        "answer_evidence": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": ["retrieval_event_id", "source_id", "document_id"],
+            }
+        },
+        "vector_index_metadata": {
+            "$jsonSchema": {"bsonType": "object", "required": ["provider", "updated_at"]}
+        },
+        "uploaded_source_files": {
+            "$jsonSchema": {
+                "bsonType": "object",
+                "required": [
+                    "source_id",
+                    "sanitized_filename",
+                    "mime_type",
+                    "file_size",
+                    "sha256_checksum",
+                    "gridfs_file_id",
+                    "upload_timestamp",
+                ],
+            }
+        },
     }
     existing = await database.list_collection_names()
     for collection_name, validator in validators.items():
@@ -96,6 +243,17 @@ async def record_schema_version(database: Any) -> None:
             "$set": {
                 "component": "phase_0_foundation",
                 "version": SYSTEM_SCHEMA_VERSION,
+                "updated_at": utc_now(),
+            }
+        },
+        upsert=True,
+    )
+    await database["system_schema_versions"].update_one(
+        {"component": "phase_1_technology_student"},
+        {
+            "$set": {
+                "component": "phase_1_technology_student",
+                "version": PHASE_1_SCHEMA_VERSION,
                 "updated_at": utc_now(),
             }
         },

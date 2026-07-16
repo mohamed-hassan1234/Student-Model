@@ -7,5 +7,52 @@
   },
   "system_jobs": {
     "required": ["job_type", "state", "attempts", "created_at", "updated_at"]
+  },
+  "sources": {
+    "required": ["source_id", "name", "source_status", "technology_topic", "created_at"]
+  },
+  "source_reviews": {
+    "required": ["source_id", "decision", "created_at"]
+  },
+  "documents": {
+    "required": ["source_id", "title", "content_hash"]
+  },
+  "document_versions": {
+    "required": ["document_id", "source_id", "content_hash"]
+  },
+  "document_chunks": {
+    "required": ["source_id", "document_id", "chunk", "embedding"]
+  },
+  "ingestion_jobs": {
+    "required": ["source_id", "state", "created_at"]
+  },
+  "ingestion_events": {
+    "required": ["source_id", "event_type", "created_at"]
+  },
+  "conversations": {
+    "required": ["created_at"]
+  },
+  "messages": {
+    "required": ["conversation_id", "created_at"]
+  },
+  "retrieval_events": {
+    "required": ["question", "evidence_status", "created_at"]
+  },
+  "answer_evidence": {
+    "required": ["retrieval_event_id", "source_id", "document_id"]
+  },
+  "vector_index_metadata": {
+    "required": ["provider", "updated_at"]
+  },
+  "uploaded_source_files": {
+    "required": [
+      "source_id",
+      "sanitized_filename",
+      "mime_type",
+      "file_size",
+      "sha256_checksum",
+      "gridfs_file_id",
+      "upload_timestamp"
+    ]
   }
 }

@@ -1,6 +1,8 @@
 from collections.abc import AsyncIterator
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Any, Protocol, cast
+
+from gridfs import AsyncGridFSBucket
 
 
 @dataclass(frozen=True)
@@ -24,13 +26,14 @@ class FileStore(Protocol):
 
 
 class GridFsFileStore:
-    """GridFS adapter boundary for future durable file storage.
+    """GridFS adapter boundary for durable uploaded source files."""
 
-    Phase 0 defines the boundary only; upload workflows are intentionally out of scope.
-    """
-
-    def __init__(self, bucket: object) -> None:
+    def __init__(self, bucket: AsyncGridFSBucket) -> None:
         self._bucket = bucket
+
+    @classmethod
+    def from_database(cls, database: Any) -> "GridFsFileStore":
+        return cls(AsyncGridFSBucket(database))
 
     async def put(
         self,
@@ -38,9 +41,15 @@ class GridFsFileStore:
         content_type: str,
         chunks: AsyncIterator[bytes],
     ) -> StoredFile:
-        del filename, content_type, chunks
-        raise NotImplementedError("GridFS uploads are not implemented in Phase 0")
+        data = b""
+        async for chunk in chunks:
+            data += chunk
+        file_id = await self._bucket.upload_from_stream(
+            filename,
+            data,
+            metadata={"content_type": content_type},
+        )
+        return StoredFile(file_id=str(file_id), filename=filename, content_type=content_type)
 
     async def delete(self, file_id: str) -> None:
-        del file_id
-        raise NotImplementedError("GridFS deletion is not implemented in Phase 0")
+        await self._bucket.delete(cast(Any, file_id))

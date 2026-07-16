@@ -1,8 +1,8 @@
 # DevMind AI
 
-DevMind AI is a local-first, low-cost, modular artificial intelligence learning platform. This repository currently contains Phase 0: the engineering foundation for future specialist student models, local model providers, MongoDB-backed services, and a professional development workflow.
+DevMind AI is a local-first, low-cost, modular artificial intelligence learning platform. This repository currently contains Phase 1: Technology Student v0.1, a first approved-source RAG MVP on top of the Phase 0 engineering foundation.
 
-Phase 0 does not implement training, crawling, autonomous learning, final routing, or a DevMind Teacher AI.
+Phase 1 does not implement model fine-tuning, model-weight modification, autonomous self-training, unrestricted crawling, multiple specialist models, final routing, or a DevMind Teacher AI.
 
 ## Stack
 
@@ -10,6 +10,7 @@ Phase 0 does not implement training, crawling, autonomous learning, final routin
 - Frontend: React, TypeScript, Vite, Tailwind CSS, Vitest, React Testing Library, ESLint
 - Database: MongoDB Community Server locally or MongoDB Atlas via environment URI
 - Development: local processes, PowerShell and shell scripts, no Docker
+- Phase 1: approved-source registry, parsers, chunking, mock/local embeddings, vector retrieval boundary, grounded answers with citations
 
 ## Quick Start
 
@@ -49,6 +50,8 @@ Unix-like shells can use:
 - Start worker: `uv run python -m devmind_worker.runner`
 - Run all validation: `scripts/validate.ps1` or `./scripts/validate.sh`
 - Stop local processes: `scripts/stop.ps1` or `./scripts/stop.sh`
+- Technology Student capabilities: `GET /api/v1/technology/student/capabilities`
+- Ask Technology Student: `POST /api/v1/technology/student/ask`
 
 ## License and Data
 

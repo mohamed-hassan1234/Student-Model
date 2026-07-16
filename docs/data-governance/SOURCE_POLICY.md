@@ -28,3 +28,5 @@ Explicitly prohibited:
 - Secret or credential ingestion.
 
 Every dataset requires a provenance record, license record, collection method, allowed use, retention expectation, and human approval before training or evaluation use.
+
+Phase 1 Technology Student uses retrieval-only approved sources for HTML, CSS, JavaScript, TypeScript fundamentals, React, Node.js, Express.js, MongoDB, Git, GitHub, and software engineering fundamentals.

@@ -14,11 +14,11 @@ Pydantic validates configuration. API request validation must use typed request 
 
 ## File Upload Security
 
-Upload workflows are out of scope for Phase 0. Future uploads must validate type, size, provenance, permission, retention, malware risk, and storage destination.
+Upload workflows validate type, size, provenance, permission, and executable-looking content. Uploaded content remains untrusted.
 
 ## Network Access
 
-Phase 0 uses local API, local frontend, optional MongoDB, and no paid inference APIs. External providers require explicit approval and configuration.
+Phase 1 uses local API, local frontend, optional MongoDB, and no paid inference APIs. External providers require explicit approval and configuration.
 
 ## Process Boundaries
 

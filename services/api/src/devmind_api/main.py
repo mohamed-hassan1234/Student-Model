@@ -11,6 +11,7 @@ from devmind_api.exceptions import register_exception_handlers
 from devmind_api.logging import configure_logging
 from devmind_api.middleware import CorrelationIdMiddleware, SecurityHeadersMiddleware
 from devmind_api.routes.health import router as health_router
+from devmind_api.routes.technology import router as technology_router
 
 settings = get_settings()
 configure_logging(settings.log_level)
@@ -44,6 +45,7 @@ def create_app(app_settings: Settings | None = None) -> FastAPI:
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(CorrelationIdMiddleware)
     app.include_router(health_router, prefix="/api/v1")
+    app.include_router(technology_router, prefix="/api/v1")
     register_exception_handlers(app)
     return app
 

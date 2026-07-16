@@ -36,6 +36,18 @@ class Settings(BaseSettings):
     local_model_name: str = Field(default="mock-devmind-local", alias="LOCAL_MODEL_NAME")
     embedding_provider: str = Field(default="mock", alias="EMBEDDING_PROVIDER")
     embedding_model_name: str = Field(default="mock-embedding", alias="EMBEDDING_MODEL_NAME")
+    embedding_dimensions: int = Field(default=16, ge=1, le=4096, alias="EMBEDDING_DIMENSIONS")
+    vector_search_provider: str = Field(default="mock", alias="VECTOR_SEARCH_PROVIDER")
+    model_provider_timeout_seconds: int = Field(
+        default=20, ge=1, le=180, alias="MODEL_PROVIDER_TIMEOUT_SECONDS"
+    )
+    ingestion_chunk_size: int = Field(default=1200, ge=200, le=8000, alias="INGESTION_CHUNK_SIZE")
+    ingestion_chunk_overlap: int = Field(
+        default=120, ge=0, le=2000, alias="INGESTION_CHUNK_OVERLAP"
+    )
+    max_upload_bytes: int = Field(default=5_242_880, ge=1024, alias="MAX_UPLOAD_BYTES")
+    max_web_fetch_bytes: int = Field(default=2_097_152, ge=1024, alias="MAX_WEB_FETCH_BYTES")
+    max_web_redirects: int = Field(default=3, ge=0, le=10, alias="MAX_WEB_REDIRECTS")
     storage_directory: Path = Field(default=Path("storage"), alias="STORAGE_DIRECTORY")
 
     @field_validator("cors_origins", mode="before")
@@ -57,6 +69,13 @@ class Settings(BaseSettings):
             raise ValueError("MongoDB database name is missing or unsafe")
         if any(char in value for char in ['"', " ", "$", "/", "\\", "."]):
             raise ValueError("MongoDB database name contains unsupported characters")
+        return value
+
+    @field_validator("ingestion_chunk_overlap")
+    @classmethod
+    def validate_chunk_overlap(cls, value: int) -> int:
+        if value < 0:
+            raise ValueError("Chunk overlap must be non-negative")
         return value
 
     def redacted(self) -> dict[str, object]:

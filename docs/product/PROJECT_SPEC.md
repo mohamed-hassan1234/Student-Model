@@ -17,7 +17,7 @@ Powerful AI learning systems are often expensive, opaque, cloud-dependent, and d
 
 ## Proposed Solution
 
-The long-term system will coordinate specialist student models trained or adapted only from approved sources. Phase 0 creates the repository, API, frontend, MongoDB infrastructure, worker foundation, model-provider abstraction, documentation, tests, and local development workflow.
+The long-term system will coordinate specialist student models trained or adapted only from approved sources. Phase 1 adds Technology Student v0.1: a first approved-source RAG MVP for core web and software engineering topics.
 
 ## Goals
 
@@ -30,10 +30,10 @@ The long-term system will coordinate specialist student models trained or adapte
 
 ## Non-goals
 
-- No model training in Phase 0.
-- No web crawling in Phase 0.
-- No autonomous learning in Phase 0.
-- No final router or DevMind Teacher AI in Phase 0.
+- No model training in Phase 1.
+- No unrestricted web crawling in Phase 1.
+- No autonomous learning in Phase 1.
+- No final router or DevMind Teacher AI in Phase 1.
 - No scraping of closed AI chat interfaces.
 - No paid provider dependency.
 - No Docker or container-based development.
@@ -49,11 +49,11 @@ The long-term system will coordinate specialist student models trained or adapte
 
 ## Functional Boundaries
 
-The API exposes health and readiness only. The worker can claim no-op jobs but performs no ingestion or learning. The frontend displays system status only. The model gateway contains a deterministic mock provider only.
+The API exposes health/readiness plus Technology Student endpoints for source registration, ingestion, curriculum, and grounded Q&A. The frontend displays status, sources, chat, and curriculum. The model gateway contains deterministic mock and local HTTP provider foundations.
 
 ## Data Boundaries
 
-Only infrastructure collections are created in Phase 0: `system_schema_versions`, `system_audit_events`, and `system_jobs`. No domain collections, generated datasets, uploaded documents, or model artifacts are committed.
+Phase 1 adds source, document, chunk, ingestion, retrieval, evidence, conversation, and vector metadata collections. Generated datasets, uploaded documents, local vector indexes, and model artifacts are not committed.
 
 ## Future Specialist Student Concept
 

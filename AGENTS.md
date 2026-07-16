@@ -2,13 +2,14 @@
 
 ## Purpose and Phase
 
-DevMind AI is a local-first, low-cost, modular AI learning platform. The repository is in Phase 0: engineering foundation only. Do not add model training, autonomous learning, final routing, web crawling, or DevMind Teacher AI behavior before an approved later phase.
+DevMind AI is a local-first, low-cost, modular AI learning platform. The repository is in Phase 1: Technology Student Knowledge and RAG MVP. Do not add model training, autonomous learning, final routing, unrestricted web crawling, multiple specialist models, or DevMind Teacher AI behavior before an approved later phase.
 
 ## Repository Map
 
 - `services/api`: FastAPI API foundation.
 - `services/worker`: inactive-by-default MongoDB job worker foundation.
 - `services/model_gateway`: future model-provider contracts and deterministic mock provider.
+- `services/api/src/devmind_api/technology`: Technology Student source registry, ingestion, parsing, chunking, embedding, retrieval, and RAG services.
 - `apps/web`: React, TypeScript, Vite, Tailwind status app.
 - `infra/mongodb`: MongoDB indexes, validators, and schema-version foundation.
 - `scripts`: local development, validation, and MongoDB bootstrap scripts.
@@ -21,7 +22,7 @@ DevMind AI is a local-first, low-cost, modular AI learning platform. The reposit
 - Architecture: `ARCHITECTURE.md` and `docs/architecture/SYSTEM_ARCHITECTURE.md`
 - Database rules: `docs/database/MONGODB_ARCHITECTURE.md`
 - Source policy: `docs/data-governance/SOURCE_POLICY.md`
-- Current plan/status: `docs/plans/active/PHASE_0_PLAN.md`, `docs/status/PROJECT_STATUS.md`
+- Current plan/status: `docs/plans/active/PHASE_1_PLAN.md`, `docs/status/PROJECT_STATUS.md`
 
 ## Standards and Validation
 
@@ -45,4 +46,4 @@ Do not add Docker, Docker Compose, Dockerfiles, Kubernetes, Testcontainers, paid
 
 ## Definition of Done
 
-Phase 0 work is done when the foundation starts locally, tests are deterministic without real MongoDB, optional MongoDB integration tests are guarded, all available validations have run, no prohibited files or technologies exist, and status docs reflect the actual result.
+Phase 1 work is done when approved technology sources can be registered and ingested, chunks and embeddings are stored in MongoDB, retrieval produces cited grounded answers or honest insufficient-evidence responses, tests are deterministic without real MongoDB, optional MongoDB integration tests are guarded, all available validations have run, no prohibited files or technologies exist, and status docs reflect the actual result.

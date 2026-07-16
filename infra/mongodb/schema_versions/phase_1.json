@@ -1,0 +1,19 @@
+{
+  "component": "phase_1_technology_student",
+  "version": 1,
+  "collections": [
+    "sources",
+    "source_reviews",
+    "documents",
+    "document_versions",
+    "document_chunks",
+    "ingestion_jobs",
+    "ingestion_events",
+    "conversations",
+    "messages",
+    "retrieval_events",
+    "answer_evidence",
+    "vector_index_metadata",
+    "uploaded_source_files"
+  ]
+}

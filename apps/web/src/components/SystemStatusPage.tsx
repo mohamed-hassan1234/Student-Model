@@ -5,14 +5,15 @@ type SystemStatusPageProps = {
   status: SystemStatus | null;
   loading: boolean;
   error: string | null;
+  embedded?: boolean;
 };
 
-export function SystemStatusPage({ status, loading, error }: SystemStatusPageProps) {
+export function SystemStatusPage({ status, loading, error, embedded = false }: SystemStatusPageProps) {
   const readinessTone = status?.readiness.status === "ready" ? "healthy" : "warning";
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <section className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-8 sm:px-8">
+    <section className={embedded ? "space-y-4" : "min-h-screen bg-slate-50"}>
+      <div className={embedded ? "space-y-4" : "mx-auto flex min-h-screen w-full max-w-5xl flex-col px-5 py-8 sm:px-8"}>
         <header className="mb-8 flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-signal">DevMind AI</p>
@@ -64,7 +65,7 @@ export function SystemStatusPage({ status, loading, error }: SystemStatusPagePro
             <p className="mt-2 text-graphite">The API has not returned a system status.</p>
           </section>
         ) : null}
-      </section>
-    </main>
+      </div>
+    </section>
   );
 }
