@@ -1,82 +1,80 @@
 # Project Status
 
-## Current Phase
+## Phase 0 Status
 
-Phase 1: Technology Student Knowledge and RAG MVP.
+Complete and audited. Phase 0 provides the repository foundation, Python 3.12 configuration, FastAPI health/readiness endpoints, environment-based configuration, MongoDB lifecycle/readiness ping, structured logging, correlation IDs, central exception handling, React status UI, mock model provider, MongoDB-backed worker foundation, local scripts, CI, and no Docker or relational database dependency.
 
-## Current Repository State
+## Phase 1 Status
 
-Technology Student v0.1 is implemented as a local-first approved-source RAG MVP. The repository includes source registry, policy checks, secure URL/file validation, parsers, normalization, prompt-injection marking, deterministic chunking, mock/local embedding and model provider foundations, MongoDB storage, GridFS upload storage, retrieval, citations, frontend pages, tests, docs, and CI-compatible validation.
+Complete and audited. Phase 1 provides Technology Student approved-source registration, policy validation, secure ingestion, parsing, sanitization, normalization, duplicate-aware chunking, embeddings, MongoDB storage, GridFS upload metadata, retrieval, local/mock provider generation, citations, insufficient-evidence behavior, prompt-injection isolation, SSRF/file validation, and audit events.
 
-## Completed Work
+## Phase 2 Status
 
-- Moved Phase 0 plan to completed and created active Phase 1 plan.
-- Added Technology Student source registry and approval workflow.
-- Added parser pipeline for HTML, PDF text extraction, Markdown, and plain text.
-- Added file and web security validation, including SSRF and executable-file protections.
-- Added prompt-injection risk marking and untrusted-content prompt delimiting.
-- Added deterministic chunking and duplicate chunk detection by content hash.
-- Added embedding-provider abstraction with deterministic mock and Ollama/local HTTP foundation.
-- Added vector-search provider abstraction with MongoDB Vector Search, local FAISS fallback metadata behavior, and deterministic mock retrieval.
-- Added MongoDB repositories for sources, reviews, documents, versions, chunks, ingestion jobs/events, retrieval events, evidence, upload metadata, audit events, and vector metadata.
-- Added GridFS upload storage through `AsyncGridFSBucket`.
-- Added Technology Student RAG answer flow with citations and insufficient-evidence refusal.
-- Added API endpoints under `/api/v1/technology`.
-- Extended React app with Status, Sources, Technology Student, and Curriculum views.
-- Added Phase 1 tests and documentation.
+Complete and audited. Phase 2 provides curriculum coverage, knowledge-gap detection, bounded learning cycles, generated-question records, candidate-answer records, teacher provenance, verification signals, risk scoring, human review, review audit trail, immutable dataset versions, reproducible exports with sidecar manifests, evaluation-set separation, training-config validation, model-candidate registry, and non-deploying recommendations.
 
-## Work in Progress
+## Audit Status
 
-Phase 1 MVP implementation and validation are complete. Production hardening remains for later phases.
-
-## Next Work
-
-Create Phase 2: evaluation, source coverage metrics, production-grade retrieval quality, and provider hardening.
-
-## Known Issues
-
-- `npm install` previously reported transitive frontend tooling audit findings. Review with `npm audit` before production hardening.
-- PDF extraction is text-only and does not perform OCR.
-- Real MongoDB Vector Search index provisioning is environment-specific.
-- Local FAISS native dependency packaging is not required by tests and remains an optional environment integration.
-- Authentication and authorization are placeholders for future phases.
+Phase 0-2 audit completed. Active plan: `docs/plans/active/PHASE_0_2_AUDIT_PLAN.md`. Audit report: `docs/audits/PHASE_0_2_AUDIT_REPORT.md`.
 
 ## Validation Results
 
-- `uv lock`: passed.
-- `uv sync`: passed.
+Final audit validation on 2026-07-17:
+
 - `uv lock --check`: passed.
 - `uv sync --locked`: passed.
+- `npm ci`: passed, 0 vulnerabilities.
+- `npm audit --json`: passed, 0 vulnerabilities.
 - `uv run ruff format --check .`: passed.
 - `uv run ruff check .`: passed.
-- `uv run mypy`: passed, 39 source files.
-- `uv run pytest`: passed, 32 passed and 1 skipped guarded MongoDB integration test.
+- `uv run mypy`: passed.
+- `uv run pytest`: passed, 43 passed and 1 skipped guarded MongoDB integration test.
 - `npm --prefix apps/web run lint`: passed.
 - `npm --prefix apps/web run typecheck`: passed.
-- `npm --prefix apps/web run test:run`: passed, 6 tests.
+- `npm --prefix apps/web run test:run`: passed.
 - `npm --prefix apps/web run build`: passed.
 - `powershell -ExecutionPolicy Bypass -File scripts/validate.ps1`: passed.
-- MongoDB connectivity check inside validation: passed.
-- Prohibited Docker-file check inside validation: passed.
-- Secret-pattern scan inside validation: passed.
+- PowerShell syntax parse checks for `scripts/validate.ps1`, `scripts/dev.ps1`, and `scripts/stop.ps1`: passed.
+- Explicit no-Docker scan: passed.
+- Explicit no-relational implementation scan: passed.
+- Python 3.12 scan: passed; the only non-3.12 version-style hit was an npm package version, not a Python runtime reference.
+- Secret-pattern scan: reviewed; hits are placeholders, test redaction fixtures, policy text, or variable names, not committed secrets.
+- Tracked generated-artifact scan: passed.
 
-## Environment Limitations
+Environment limitations:
 
-- Unix shell script syntax checks were not run because this is a Windows environment without `bash`.
-- `scripts/bootstrap_mongodb.py` was not executed during final validation because it mutates the configured MongoDB database; run it manually after confirming the target database.
+- `sh` is not installed in this Windows environment, so POSIX shell syntax checks for `scripts/*.sh` were not executed here. Exact local command: `sh -n scripts/validate.sh scripts/dev.sh scripts/stop.sh`.
+- Optional real MongoDB integration tests remained skipped because `MONGODB_TEST_URI` was not explicitly configured for a safe test database. The repository validation script did verify MongoDB connectivity for the configured local environment.
 
-## Important Decisions
+## Known Limitations
 
-- MongoDB remains the primary database and source of truth.
-- Technology Student v0.1 is the only Phase 1 specialist.
-- Tests use mock providers and fakes; no paid API, Ollama, internet access, Docker, or production MongoDB is required.
-- Source content is always treated as untrusted data.
-- Unsupported answers return `insufficient_evidence` rather than unsupported model-memory claims.
+- Administrative authorization is a placeholder header and not production security.
+- Teacher generation is deterministic mock output by default.
+- Safe Code Runner is disabled and no arbitrary generated code is executed.
+- Training configuration validation does not download models or start training.
+- MongoDB bootstrap mutates the configured database and should be run manually only after confirming the target database.
 
-## Pending Human Reviews
+## Manual Setup Requirements
 
-- Confirm Apache 2.0 copyright/owner text.
-- Review Phase 1 source approval and governance policy before ingesting real sources.
-- Confirm MongoDB target database before running bootstrap.
-- Review npm audit findings.
-- Review local model and embedding provider choices before enabling non-mock providers.
+```powershell
+uv sync
+npm install
+npm --prefix apps/web install
+uv run python scripts/check_environment.py --mongodb-only
+uv run python scripts/bootstrap_mongodb.py
+scripts/dev.ps1
+```
+
+Unix-like:
+
+```sh
+uv sync
+npm install
+npm --prefix apps/web install
+uv run python scripts/check_environment.py --mongodb-only
+uv run python scripts/bootstrap_mongodb.py
+./scripts/dev.sh
+```
+
+## Phase 3 Approval
+
+GO for Phase 3 development after human review of the audit report. Recommended Phase 3 scope is authentication/authorization, governance hardening, operator workflows, and operational safety. NO-GO for production/shared deployment until real access control and operational policies are implemented.

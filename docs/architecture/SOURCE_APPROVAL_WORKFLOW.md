@@ -6,4 +6,4 @@
 4. Approved sources may be ingested.
 5. Inactive or blocked sources are excluded from future ingestion and retrieval.
 
-Training permission is recorded separately from retrieval permission. Phase 1 uses retrieval only and does not train models.
+Training permission is recorded separately from retrieval permission. Phase 2 may prepare dataset candidates only when training permission is allowed, but it does not train models.

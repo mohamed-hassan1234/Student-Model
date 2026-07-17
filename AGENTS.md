@@ -2,7 +2,7 @@
 
 ## Purpose and Phase
 
-DevMind AI is a local-first, low-cost, modular AI learning platform. The repository is in Phase 1: Technology Student Knowledge and RAG MVP. Do not add model training, autonomous learning, final routing, unrestricted web crawling, multiple specialist models, or DevMind Teacher AI behavior before an approved later phase.
+DevMind AI is a local-first, low-cost, modular AI learning platform. The repository is in Phase 2: Verified Automated Learning and Dataset Builder. Do not add automatic model training, model-weight modification, model promotion, final routing, unrestricted web crawling, multiple specialist models, or DevMind Teacher AI behavior before an approved later phase.
 
 ## Repository Map
 
@@ -10,6 +10,7 @@ DevMind AI is a local-first, low-cost, modular AI learning platform. The reposit
 - `services/worker`: inactive-by-default MongoDB job worker foundation.
 - `services/model_gateway`: future model-provider contracts and deterministic mock provider.
 - `services/api/src/devmind_api/technology`: Technology Student source registry, ingestion, parsing, chunking, embedding, retrieval, and RAG services.
+- `services/api/src/devmind_api/technology/learning_*`: Phase 2 curriculum, learning-cycle, verification, review, dataset, evaluation, training-prep, and model-candidate foundations.
 - `apps/web`: React, TypeScript, Vite, Tailwind status app.
 - `infra/mongodb`: MongoDB indexes, validators, and schema-version foundation.
 - `scripts`: local development, validation, and MongoDB bootstrap scripts.
@@ -22,7 +23,7 @@ DevMind AI is a local-first, low-cost, modular AI learning platform. The reposit
 - Architecture: `ARCHITECTURE.md` and `docs/architecture/SYSTEM_ARCHITECTURE.md`
 - Database rules: `docs/database/MONGODB_ARCHITECTURE.md`
 - Source policy: `docs/data-governance/SOURCE_POLICY.md`
-- Current plan/status: `docs/plans/active/PHASE_1_PLAN.md`, `docs/status/PROJECT_STATUS.md`
+- Current plan/status: `docs/plans/active/PHASE_2_PLAN.md`, `docs/status/PROJECT_STATUS.md`
 
 ## Standards and Validation
 
@@ -34,7 +35,7 @@ MongoDB is the primary database. Relational databases must not be introduced wit
 
 ## Security and Data Boundaries
 
-Never commit secrets, credentials, uploaded documents, generated datasets, downloaded models, model weights, virtual environments, or build artifacts. Training data must have documented provenance and permission. Closed AI interfaces must not be scraped. Secret values must not appear in health checks, readiness checks, logs, tests, or docs.
+Never commit secrets, credentials, uploaded documents, generated datasets, downloaded models, model weights, virtual environments, or build artifacts. Training data must have documented provenance, permission, verification, and human approval. Closed AI interfaces must not be scraped. Secret values must not appear in health checks, readiness checks, logs, tests, or docs.
 
 ## Documentation Rules
 
@@ -46,4 +47,4 @@ Do not add Docker, Docker Compose, Dockerfiles, Kubernetes, Testcontainers, paid
 
 ## Definition of Done
 
-Phase 1 work is done when approved technology sources can be registered and ingested, chunks and embeddings are stored in MongoDB, retrieval produces cited grounded answers or honest insufficient-evidence responses, tests are deterministic without real MongoDB, optional MongoDB integration tests are guarded, all available validations have run, no prohibited files or technologies exist, and status docs reflect the actual result.
+Phase 2 work is done when curriculum coverage, gaps, bounded cycles, generated questions, verified candidate answers, mandatory human review, immutable dataset versions, reproducible exports, training-prep validation, model-candidate registration, tests, and docs are complete without Docker, paid APIs, closed-chat scraping, relational databases, or automatic training.

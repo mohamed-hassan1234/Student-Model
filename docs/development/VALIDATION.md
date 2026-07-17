@@ -1,6 +1,6 @@
 # Validation
 
-Run all available checks before marking Phase 0 work complete.
+Run all available checks before marking the active phase complete.
 
 ## Backend
 

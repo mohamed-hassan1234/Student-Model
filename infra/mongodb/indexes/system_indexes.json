@@ -57,5 +57,72 @@
   "uploaded_source_files": [
     { "keys": [["source_id", 1], ["upload_timestamp", 1]], "name": "uploaded_source_history" },
     { "keys": [["sha256_checksum", 1]], "name": "uploaded_source_checksum" }
+  ],
+  "curricula": [
+    { "keys": [["student_id", 1], ["version", 1]], "name": "curricula_primary" }
+  ],
+  "curriculum_topics": [
+    { "keys": [["domain", 1], ["topic", 1], ["subtopic", 1]], "name": "curriculum_topics_primary" },
+    { "keys": [["topic_id", 1]], "unique": true, "name": "uniq_topic_id" }
+  ],
+  "learning_cycles": [
+    { "keys": [["status", 1], ["created_at", 1]], "name": "learning_cycles_primary" }
+  ],
+  "knowledge_gaps": [
+    { "keys": [["status", 1], ["severity", 1]], "name": "knowledge_gaps_primary" }
+  ],
+  "generated_questions": [
+    { "keys": [["topic", 1], ["content_hash", 1]], "name": "generated_questions_primary" },
+    { "keys": [["content_hash", 1]], "name": "question_content_hash" }
+  ],
+  "candidate_answers": [
+    { "keys": [["question_id", 1], ["verification_status", 1]], "name": "candidate_answers_primary" }
+  ],
+  "verification_runs": [
+    { "keys": [["candidate_id", 1], ["created_at", 1]], "name": "verification_runs_primary" }
+  ],
+  "verification_signals": [
+    { "keys": [["candidate_id", 1], ["name", 1]], "name": "verification_signals_primary" }
+  ],
+  "human_reviews": [
+    { "keys": [["status", 1], ["created_at", 1]], "name": "human_reviews_primary" }
+  ],
+  "reviewer_actions": [
+    { "keys": [["review_id", 1], ["created_at", 1]], "name": "reviewer_actions_primary" }
+  ],
+  "dataset_candidates": [
+    { "keys": [["status", 1], ["dataset_type", 1]], "name": "dataset_candidates_primary" }
+  ],
+  "dataset_versions": [
+    { "keys": [["dataset_type", 1], ["creation_timestamp", 1]], "name": "dataset_versions_primary" },
+    { "keys": [["dataset_version_id", 1]], "unique": true, "name": "uniq_dataset_version_id" }
+  ],
+  "dataset_records": [
+    { "keys": [["dataset_candidate_id", 1], ["content_hash", 1]], "name": "dataset_records_primary" },
+    { "keys": [["content_hash", 1]], "name": "dataset_record_content_hash" }
+  ],
+  "evaluation_sets": [
+    { "keys": [["version", 1]], "name": "evaluation_sets_primary" }
+  ],
+  "evaluation_records": [
+    { "keys": [["category", 1], ["content_hash", 1]], "name": "evaluation_records_primary" }
+  ],
+  "training_configs": [
+    { "keys": [["dataset_version", 1], ["training_method", 1]], "name": "training_configs_primary" }
+  ],
+  "training_runs": [
+    { "keys": [["status", 1], ["created_at", 1]], "name": "training_runs_primary" }
+  ],
+  "model_candidates": [
+    { "keys": [["approval_state", 1], ["dataset_version", 1]], "name": "model_candidates_primary" }
+  ],
+  "model_evaluations": [
+    { "keys": [["candidate_id", 1], ["created_at", 1]], "name": "model_evaluations_primary" }
+  ],
+  "deployment_recommendations": [
+    { "keys": [["candidate_id", 1]], "name": "deployment_recommendations_primary" }
+  ],
+  "rollback_records": [
+    { "keys": [["candidate_id", 1], ["created_at", 1]], "name": "rollback_records_primary" }
   ]
 }

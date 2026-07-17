@@ -41,6 +41,15 @@ class Settings(BaseSettings):
     model_provider_timeout_seconds: int = Field(
         default=20, ge=1, le=180, alias="MODEL_PROVIDER_TIMEOUT_SECONDS"
     )
+    learning_cycle_max_examples: int = Field(
+        default=20, ge=1, le=500, alias="LEARNING_CYCLE_MAX_EXAMPLES"
+    )
+    learning_cycle_max_provider_calls: int = Field(
+        default=40, ge=1, le=1000, alias="LEARNING_CYCLE_MAX_PROVIDER_CALLS"
+    )
+    teacher_provider: str = Field(default="mock", alias="TEACHER_PROVIDER")
+    teacher_model_name: str = Field(default="mock-devmind-teacher", alias="TEACHER_MODEL_NAME")
+    safe_code_runner_enabled: bool = Field(default=False, alias="SAFE_CODE_RUNNER_ENABLED")
     ingestion_chunk_size: int = Field(default=1200, ge=200, le=8000, alias="INGESTION_CHUNK_SIZE")
     ingestion_chunk_overlap: int = Field(
         default=120, ge=0, le=2000, alias="INGESTION_CHUNK_OVERLAP"

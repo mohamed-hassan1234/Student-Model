@@ -1,4 +1,4 @@
-"""Model gateway contracts and Phase 0 mock provider."""
+"""Model gateway contracts and deterministic mock provider."""
 
 from devmind_model_gateway.providers import (
     LlamaCppHttpModelProvider,

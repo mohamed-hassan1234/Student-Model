@@ -9,6 +9,31 @@ from devmind_shared.time import utc_now
 
 SYSTEM_SCHEMA_VERSION = 1
 PHASE_1_SCHEMA_VERSION = 1
+PHASE_2_SCHEMA_VERSION = 1
+
+PHASE_2_COLLECTIONS = {
+    "curricula": [("student_id", ASCENDING), ("version", ASCENDING)],
+    "curriculum_topics": [("domain", ASCENDING), ("topic", ASCENDING), ("subtopic", ASCENDING)],
+    "learning_cycles": [("status", ASCENDING), ("created_at", ASCENDING)],
+    "knowledge_gaps": [("status", ASCENDING), ("severity", ASCENDING)],
+    "generated_questions": [("topic", ASCENDING), ("content_hash", ASCENDING)],
+    "candidate_answers": [("question_id", ASCENDING), ("verification_status", ASCENDING)],
+    "verification_runs": [("candidate_id", ASCENDING), ("created_at", ASCENDING)],
+    "verification_signals": [("candidate_id", ASCENDING), ("name", ASCENDING)],
+    "human_reviews": [("status", ASCENDING), ("created_at", ASCENDING)],
+    "reviewer_actions": [("review_id", ASCENDING), ("created_at", ASCENDING)],
+    "dataset_candidates": [("status", ASCENDING), ("dataset_type", ASCENDING)],
+    "dataset_versions": [("dataset_type", ASCENDING), ("creation_timestamp", ASCENDING)],
+    "dataset_records": [("dataset_candidate_id", ASCENDING), ("content_hash", ASCENDING)],
+    "evaluation_sets": [("version", ASCENDING)],
+    "evaluation_records": [("category", ASCENDING), ("content_hash", ASCENDING)],
+    "training_configs": [("dataset_version", ASCENDING), ("training_method", ASCENDING)],
+    "training_runs": [("status", ASCENDING), ("created_at", ASCENDING)],
+    "model_candidates": [("approval_state", ASCENDING), ("dataset_version", ASCENDING)],
+    "model_evaluations": [("candidate_id", ASCENDING), ("created_at", ASCENDING)],
+    "deployment_recommendations": [("candidate_id", ASCENDING)],
+    "rollback_records": [("candidate_id", ASCENDING), ("created_at", ASCENDING)],
+}
 
 
 async def create_indexes(database: Any) -> None:
@@ -94,6 +119,20 @@ async def create_indexes(database: Any) -> None:
     await database["uploaded_source_files"].create_index(
         [("sha256_checksum", ASCENDING)],
         name="uploaded_source_checksum",
+    )
+    for collection_name, keys in PHASE_2_COLLECTIONS.items():
+        await database[collection_name].create_index(keys, name=f"{collection_name}_primary")
+    await database["curriculum_topics"].create_index(
+        [("topic_id", ASCENDING)], unique=True, name="uniq_topic_id"
+    )
+    await database["generated_questions"].create_index(
+        [("content_hash", ASCENDING)], name="question_content_hash"
+    )
+    await database["dataset_versions"].create_index(
+        [("dataset_version_id", ASCENDING)], unique=True, name="uniq_dataset_version_id"
+    )
+    await database["dataset_records"].create_index(
+        [("content_hash", ASCENDING)], name="dataset_record_content_hash"
     )
 
 
@@ -222,6 +261,8 @@ async def create_validators(database: Any) -> None:
             }
         },
     }
+    for collection_name in PHASE_2_COLLECTIONS:
+        validators[collection_name] = {"$jsonSchema": {"bsonType": "object", "required": ["_id"]}}
     existing = await database.list_collection_names()
     for collection_name, validator in validators.items():
         if collection_name not in existing:
@@ -254,6 +295,17 @@ async def record_schema_version(database: Any) -> None:
             "$set": {
                 "component": "phase_1_technology_student",
                 "version": PHASE_1_SCHEMA_VERSION,
+                "updated_at": utc_now(),
+            }
+        },
+        upsert=True,
+    )
+    await database["system_schema_versions"].update_one(
+        {"component": "phase_2_verified_dataset_builder"},
+        {
+            "$set": {
+                "component": "phase_2_verified_dataset_builder",
+                "version": PHASE_2_SCHEMA_VERSION,
                 "updated_at": utc_now(),
             }
         },

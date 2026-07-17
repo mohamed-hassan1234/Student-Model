@@ -54,5 +54,68 @@
       "gridfs_file_id",
       "upload_timestamp"
     ]
+  },
+  "curricula": {
+    "required": ["curriculum_id", "student_id", "version"]
+  },
+  "curriculum_topics": {
+    "required": ["topic_id", "domain", "topic", "learning_objective"]
+  },
+  "learning_cycles": {
+    "required": ["cycle_id", "domain", "topic", "status", "created_at"]
+  },
+  "knowledge_gaps": {
+    "required": ["gap_id", "topic_id", "signals", "severity", "status"]
+  },
+  "generated_questions": {
+    "required": ["question_id", "topic", "question_type", "content_hash", "question"]
+  },
+  "candidate_answers": {
+    "required": ["candidate_id", "question_id", "teacher_provider", "generated_answer"]
+  },
+  "verification_runs": {
+    "required": ["run_id", "candidate_id", "status", "overall_score", "risk_score"]
+  },
+  "verification_signals": {
+    "required": ["signal_id", "candidate_id", "name", "score", "passed"]
+  },
+  "human_reviews": {
+    "required": ["review_id", "candidate_id", "question_id", "status"]
+  },
+  "reviewer_actions": {
+    "required": ["action_id", "review_id", "reviewer_id", "action", "created_at"]
+  },
+  "dataset_candidates": {
+    "required": ["dataset_candidate_id", "dataset_type", "status", "record_ids"]
+  },
+  "dataset_versions": {
+    "required": ["dataset_version_id", "dataset_type", "content_manifest_hash", "immutable"]
+  },
+  "dataset_records": {
+    "required": ["record_id", "dataset_candidate_id", "dataset_type", "content_hash"]
+  },
+  "evaluation_sets": {
+    "required": ["evaluation_set_id", "version", "categories", "frozen"]
+  },
+  "evaluation_records": {
+    "required": ["evaluation_record_id", "category", "prompt", "content_hash"]
+  },
+  "training_configs": {
+    "required": ["training_config_id", "dataset_version", "training_method"]
+  },
+  "training_runs": {
+    "required": ["status", "created_at"]
+  },
+  "model_candidates": {
+    "required": ["candidate_id", "base_model", "dataset_version", "approval_state"]
+  },
+  "model_evaluations": {
+    "required": ["candidate_id", "created_at"]
+  },
+  "deployment_recommendations": {
+    "required": ["candidate_id", "recommended", "created_at"]
+  },
+  "rollback_records": {
+    "required": ["candidate_id", "created_at"]
   }
 }

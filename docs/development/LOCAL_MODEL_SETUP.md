@@ -1,6 +1,6 @@
 # Local Model Setup
 
-The default Phase 1 test provider is `mock`. To use a local provider, configure:
+The default provider for tests and local development is `mock`. To use a local provider, configure:
 
 ```text
 LOCAL_MODEL_PROVIDER=ollama

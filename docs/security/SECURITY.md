@@ -42,11 +42,11 @@ Local models can leak sensitive prompts, produce unsafe outputs, or behave incon
 
 ## Model Deployment Controls
 
-No automatic model download, training, promotion, or deployment is allowed in Phase 0. Future model promotion must require evaluation evidence and human approval.
+No automatic model download, training, promotion, or deployment is allowed in Phase 2. Future model promotion must require evaluation evidence, rollback metadata, license review, and human approval.
 
 ## Access Control Planning
 
-Authentication and authorization are not implemented in Phase 0. Any future user data or administrative functions must add access controls first.
+Authentication and authorization are placeholders in Phase 2. Any shared or production use must add real access controls first.
 
 ## Audit Logging
 
@@ -59,3 +59,12 @@ Do not execute untrusted code from documents, datasets, model outputs, or source
 ## No Unauthorized Data Collection
 
 Hidden data collection, scraping closed interfaces, bypassing paywalls, and training on private conversations without consent are prohibited.
+## Phase 2 Dataset and Training Safety
+
+Phase 2 adds automated preparation but not automated training. Generated records require source permission, teacher-output permission, verification signals, risk scoring, and explicit human approval before dataset use.
+
+Administrative mutation endpoints use a temporary local placeholder header, `x-devmind-admin: local-admin`, until real authentication is designed. This is not production authorization.
+
+The safe code runner is disabled by default. Arbitrary generated code is not executed on the host, and execution-dependent claims require future isolation and human review.
+
+Dataset exports exclude rejected records, unresolved licenses, records without training permission, teacher outputs without training permission, blocked sources, and evaluation records.

@@ -46,7 +46,7 @@ Infrastructure collection validators are applied with MongoDB JSON schema throug
 
 ## Bootstrap Scripts
 
-`uv run python scripts/bootstrap_mongodb.py` checks connectivity, creates or updates validators, creates indexes, and records Phase 0 schema version.
+`uv run python scripts/bootstrap_mongodb.py` checks connectivity, creates or updates validators, creates indexes, and records schema-version records through Phase 2.
 
 ## Backup Expectations
 
@@ -71,3 +71,10 @@ Retention policies are not implemented in Phase 0. Future dataset, audit, upload
 ## Audit Event Design
 
 `system_audit_events` is the foundation for security and governance events. Events must avoid secrets and should include event type, timestamp, actor where available, and safe metadata.
+## Phase 2 Collections
+
+Phase 2 adds `curricula`, `curriculum_topics`, `learning_cycles`, `knowledge_gaps`, `generated_questions`, `candidate_answers`, `verification_runs`, `verification_signals`, `human_reviews`, `reviewer_actions`, `dataset_candidates`, `dataset_versions`, `dataset_records`, `evaluation_sets`, `evaluation_records`, `training_configs`, `training_runs`, `model_candidates`, `model_evaluations`, `deployment_recommendations`, and `rollback_records`.
+
+These collections keep curriculum, generated questions, candidate answers, verification signals, review actions, dataset records, evaluation records, training-prep metadata, and model-candidate metadata in MongoDB. Approved dataset versions are immutable, and generated JSONL exports are ignored local artifacts that can be rebuilt from MongoDB records.
+
+Indexes are defined in `infra/mongodb/indexes/system_indexes.json` and bootstrapped by `scripts/bootstrap_mongodb.py`. Validators are intentionally moderate during Phase 2 to allow iteration while preserving required identity fields.

@@ -11,11 +11,16 @@ import {
   type SystemStatus,
 } from "./api/client";
 import { CurriculumPage } from "./components/CurriculumPage";
+import { CurriculumDashboardPage } from "./components/CurriculumDashboardPage";
+import { DatasetRegistryPage } from "./components/DatasetRegistryPage";
+import { HumanReviewQueuePage } from "./components/HumanReviewQueuePage";
+import { LearningCyclesPage } from "./components/LearningCyclesPage";
+import { ModelCandidateRegistryPage } from "./components/ModelCandidateRegistryPage";
 import { SourcesPage } from "./components/SourcesPage";
 import { StudentChatPage } from "./components/StudentChatPage";
 import { SystemStatusPage } from "./components/SystemStatusPage";
 
-type View = "status" | "sources" | "student" | "curriculum";
+type View = "status" | "sources" | "student" | "curriculum" | "learning" | "cycles" | "review" | "datasets" | "models";
 
 export function App() {
   const [status, setStatus] = useState<SystemStatus | null>(null);
@@ -82,7 +87,7 @@ export function App() {
           <p className="text-sm font-semibold uppercase tracking-wide text-signal">DevMind AI</p>
           <h1 className="mt-2 text-3xl font-semibold text-ink">Technology Student v0.1</h1>
           <nav className="mt-4 flex flex-wrap gap-2" aria-label="Primary">
-            {(["status", "sources", "student", "curriculum"] as View[]).map((item) => (
+            {(["status", "sources", "student", "curriculum", "learning", "cycles", "review", "datasets", "models"] as View[]).map((item) => (
               <button
                 key={item}
                 type="button"
@@ -109,6 +114,11 @@ export function App() {
           />
         ) : null}
         {view === "curriculum" ? <CurriculumPage topics={topics} /> : null}
+        {view === "learning" ? <CurriculumDashboardPage /> : null}
+        {view === "cycles" ? <LearningCyclesPage /> : null}
+        {view === "review" ? <HumanReviewQueuePage /> : null}
+        {view === "datasets" ? <DatasetRegistryPage /> : null}
+        {view === "models" ? <ModelCandidateRegistryPage /> : null}
       </div>
     </main>
   );

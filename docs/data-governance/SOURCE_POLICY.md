@@ -30,3 +30,8 @@ Explicitly prohibited:
 Every dataset requires a provenance record, license record, collection method, allowed use, retention expectation, and human approval before training or evaluation use.
 
 Phase 1 Technology Student uses retrieval-only approved sources for HTML, CSS, JavaScript, TypeScript fundamentals, React, Node.js, Express.js, MongoDB, Git, GitHub, and software engineering fundamentals.
+## Phase 2 Dataset Use
+
+Source approval for retrieval does not automatically permit training use. Dataset records must preserve provenance, source license metadata, retrieval permission, training permission, teacher provenance, teacher-output training permission, verification scores, human approval, reviewer identity, and leakage status.
+
+Records with unknown provenance, unresolved license status, blocked sources, secret content, or evaluation-set membership must be excluded from training exports.

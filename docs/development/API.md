@@ -24,3 +24,5 @@ Phase 1 endpoints are under `/api/v1/technology`.
 - `GET /student/retrieval-events/{retrieval_event_id}`
 - `GET /student/curriculum`
 - `GET /student/capabilities`
+
+Phase 2 endpoints are documented in `docs/development/API_PHASE_2.md`.

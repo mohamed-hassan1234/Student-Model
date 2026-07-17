@@ -1,8 +1,8 @@
 # DevMind AI
 
-DevMind AI is a local-first, low-cost, modular artificial intelligence learning platform. This repository currently contains Phase 1: Technology Student v0.1, a first approved-source RAG MVP on top of the Phase 0 engineering foundation.
+DevMind AI is a local-first, low-cost, modular artificial intelligence learning platform. This repository currently contains Phase 2: Verified Automated Learning and Dataset Builder for Technology Student v0.1, built on the approved-source RAG MVP.
 
-Phase 1 does not implement model fine-tuning, model-weight modification, autonomous self-training, unrestricted crawling, multiple specialist models, final routing, or a DevMind Teacher AI.
+Phase 2 prepares reviewable dataset candidates from approved evidence. It does not automatically train, modify, promote, replace, or deploy model weights.
 
 ## Stack
 
@@ -11,6 +11,7 @@ Phase 1 does not implement model fine-tuning, model-weight modification, autonom
 - Database: MongoDB Community Server locally or MongoDB Atlas via environment URI
 - Development: local processes, PowerShell and shell scripts, no Docker
 - Phase 1: approved-source registry, parsers, chunking, mock/local embeddings, vector retrieval boundary, grounded answers with citations
+- Phase 2: curriculum coverage, knowledge gaps, bounded learning cycles, generated questions, verified candidate answers, mandatory human review, immutable dataset versions, reproducible JSONL export, training-prep validation, and model-candidate records
 
 ## Quick Start
 
@@ -52,6 +53,10 @@ Unix-like shells can use:
 - Stop local processes: `scripts/stop.ps1` or `./scripts/stop.sh`
 - Technology Student capabilities: `GET /api/v1/technology/student/capabilities`
 - Ask Technology Student: `POST /api/v1/technology/student/ask`
+- Phase 2 curriculum: `GET /api/v1/technology/learning/curriculum`
+- Phase 2 review queue: `GET /api/v1/technology/learning/reviews`
+- Validate training config: `POST /api/v1/technology/learning/training-configs/validate`
+- Export approved dataset version: `POST /api/v1/technology/learning/dataset-versions/{dataset_version_id}/export`
 
 ## License and Data
 
