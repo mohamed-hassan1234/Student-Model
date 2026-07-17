@@ -1,0 +1,21 @@
+{
+  "component": "phase_3_controlled_lora_training",
+  "version": 1,
+  "description": "Controlled LoRA training, evaluation, artifact metadata, and model-candidate management foundation.",
+  "collections": [
+    "base_model_manifests",
+    "hardware_capability_reports",
+    "training_dataset_validation_reports",
+    "dataset_split_manifests",
+    "training_configs",
+    "training_runs",
+    "training_artifacts",
+    "model_evaluations",
+    "candidate_comparisons",
+    "model_candidates",
+    "deployment_recommendations",
+    "model_approvals",
+    "adapter_load_checks",
+    "rollback_records"
+  ]
+}

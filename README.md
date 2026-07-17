@@ -1,8 +1,8 @@
 # DevMind AI
 
-DevMind AI is a local-first, low-cost, modular artificial intelligence learning platform. This repository currently contains Phase 2: Verified Automated Learning and Dataset Builder for Technology Student v0.1, built on the approved-source RAG MVP.
+DevMind AI is a local-first, low-cost, modular artificial intelligence learning platform. This repository currently contains Phase 3: Controlled LoRA Training, Evaluation, and Model Candidate Management for Technology Student v0.1, built on the approved-source RAG and verified dataset foundations.
 
-Phase 2 prepares reviewable dataset candidates from approved evidence. It does not automatically train, modify, promote, replace, or deploy model weights.
+Phase 3 adds controlled manual training/evaluation foundations. It does not automatically download models, train, modify, promote, replace, or deploy model weights.
 
 ## Stack
 
@@ -12,6 +12,7 @@ Phase 2 prepares reviewable dataset candidates from approved evidence. It does n
 - Development: local processes, PowerShell and shell scripts, no Docker
 - Phase 1: approved-source registry, parsers, chunking, mock/local embeddings, vector retrieval boundary, grounded answers with citations
 - Phase 2: curriculum coverage, knowledge gaps, bounded learning cycles, generated questions, verified candidate answers, mandatory human review, immutable dataset versions, reproducible JSONL export, training-prep validation, and model-candidate records
+- Phase 3: base-model manifests, hardware inspection, dataset entry gate, split manifests, manual smoke training, training-run/artifact metadata, candidate evaluation, regression gates, and manual staging recommendations
 
 ## Quick Start
 
@@ -57,6 +58,9 @@ Unix-like shells can use:
 - Phase 2 review queue: `GET /api/v1/technology/learning/reviews`
 - Validate training config: `POST /api/v1/technology/learning/training-configs/validate`
 - Export approved dataset version: `POST /api/v1/technology/learning/dataset-versions/{dataset_version_id}/export`
+- Inspect training hardware: `uv run devmind-training inspect-hardware`
+- Validate base-model manifest: `uv run devmind-training validate-base-model-manifest --manifest manifest.json`
+- Run smoke training for an approved run: `uv run devmind-training run-smoke-training --run-id trun_...`
 
 ## License and Data
 

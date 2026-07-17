@@ -10,17 +10,22 @@ import {
   type StudentAnswer,
   type SystemStatus,
 } from "./api/client";
+import { BaseModelsPage } from "./components/BaseModelsPage";
 import { CurriculumPage } from "./components/CurriculumPage";
 import { CurriculumDashboardPage } from "./components/CurriculumDashboardPage";
 import { DatasetRegistryPage } from "./components/DatasetRegistryPage";
+import { HardwareAssessmentPage } from "./components/HardwareAssessmentPage";
 import { HumanReviewQueuePage } from "./components/HumanReviewQueuePage";
 import { LearningCyclesPage } from "./components/LearningCyclesPage";
 import { ModelCandidateRegistryPage } from "./components/ModelCandidateRegistryPage";
+import { Phase3ModelCandidatesPage } from "./components/Phase3ModelCandidatesPage";
 import { SourcesPage } from "./components/SourcesPage";
 import { StudentChatPage } from "./components/StudentChatPage";
 import { SystemStatusPage } from "./components/SystemStatusPage";
+import { TrainingDatasetsPage } from "./components/TrainingDatasetsPage";
+import { TrainingRunsPage } from "./components/TrainingRunsPage";
 
-type View = "status" | "sources" | "student" | "curriculum" | "learning" | "cycles" | "review" | "datasets" | "models";
+type View = "status" | "sources" | "student" | "curriculum" | "learning" | "cycles" | "review" | "datasets" | "models" | "hardware" | "base" | "train-data" | "runs" | "candidates";
 
 export function App() {
   const [status, setStatus] = useState<SystemStatus | null>(null);
@@ -87,7 +92,7 @@ export function App() {
           <p className="text-sm font-semibold uppercase tracking-wide text-signal">DevMind AI</p>
           <h1 className="mt-2 text-3xl font-semibold text-ink">Technology Student v0.1</h1>
           <nav className="mt-4 flex flex-wrap gap-2" aria-label="Primary">
-            {(["status", "sources", "student", "curriculum", "learning", "cycles", "review", "datasets", "models"] as View[]).map((item) => (
+            {(["status", "sources", "student", "curriculum", "learning", "cycles", "review", "datasets", "models", "hardware", "base", "train-data", "runs", "candidates"] as View[]).map((item) => (
               <button
                 key={item}
                 type="button"
@@ -119,6 +124,11 @@ export function App() {
         {view === "review" ? <HumanReviewQueuePage /> : null}
         {view === "datasets" ? <DatasetRegistryPage /> : null}
         {view === "models" ? <ModelCandidateRegistryPage /> : null}
+        {view === "hardware" ? <HardwareAssessmentPage /> : null}
+        {view === "base" ? <BaseModelsPage /> : null}
+        {view === "train-data" ? <TrainingDatasetsPage /> : null}
+        {view === "runs" ? <TrainingRunsPage /> : null}
+        {view === "candidates" ? <Phase3ModelCandidatesPage /> : null}
       </div>
     </main>
   );

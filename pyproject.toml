@@ -28,6 +28,7 @@ dev = [
 [project.scripts]
 devmind-check-environment = "scripts.check_environment:main"
 devmind-worker = "devmind_worker.runner:main"
+devmind-training = "scripts.training_cli:main"
 
 [build-system]
 requires = ["setuptools>=72.0"]

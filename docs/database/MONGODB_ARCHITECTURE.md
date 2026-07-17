@@ -46,7 +46,7 @@ Infrastructure collection validators are applied with MongoDB JSON schema throug
 
 ## Bootstrap Scripts
 
-`uv run python scripts/bootstrap_mongodb.py` checks connectivity, creates or updates validators, creates indexes, and records schema-version records through Phase 2.
+`uv run python scripts/bootstrap_mongodb.py` checks connectivity, creates or updates validators, creates indexes, and records schema-version records through Phase 3.
 
 ## Backup Expectations
 
@@ -78,3 +78,9 @@ Phase 2 adds `curricula`, `curriculum_topics`, `learning_cycles`, `knowledge_gap
 These collections keep curriculum, generated questions, candidate answers, verification signals, review actions, dataset records, evaluation records, training-prep metadata, and model-candidate metadata in MongoDB. Approved dataset versions are immutable, and generated JSONL exports are ignored local artifacts that can be rebuilt from MongoDB records.
 
 Indexes are defined in `infra/mongodb/indexes/system_indexes.json` and bootstrapped by `scripts/bootstrap_mongodb.py`. Validators are intentionally moderate during Phase 2 to allow iteration while preserving required identity fields.
+
+## Phase 3 Collections
+
+Phase 3 adds `base_model_manifests`, `hardware_capability_reports`, `training_dataset_validation_reports`, `dataset_split_manifests`, `training_artifacts`, `candidate_comparisons`, `model_approvals`, and `adapter_load_checks`, and extends `training_configs`, `training_runs`, `model_candidates`, `model_evaluations`, `deployment_recommendations`, and `rollback_records`.
+
+MongoDB stores metadata, hashes, and paths. Large adapters, checkpoints, and model files remain ignored filesystem artifacts, not MongoDB documents.

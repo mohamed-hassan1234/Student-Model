@@ -17,7 +17,7 @@ Powerful AI learning systems are often expensive, opaque, cloud-dependent, and d
 
 ## Proposed Solution
 
-The long-term system will coordinate specialist student models trained or adapted only from approved sources. Phase 1 added Technology Student v0.1 RAG for core web and software engineering topics. Phase 2 adds verified dataset-builder foundations without automatic training.
+The long-term system will coordinate specialist student models trained or adapted only from approved sources. Phase 1 added Technology Student v0.1 RAG for core web and software engineering topics. Phase 2 added verified dataset-builder foundations. Phase 3 adds controlled manual LoRA training, evaluation, and model-candidate management without automatic promotion.
 
 ## Goals
 
@@ -30,10 +30,10 @@ The long-term system will coordinate specialist student models trained or adapte
 
 ## Non-goals
 
-- No automatic model training in Phase 2.
-- No unrestricted web crawling in Phase 2.
-- No autonomous self-training in Phase 2.
-- No final router or DevMind Teacher AI in Phase 2.
+- No automatic model download, training, or promotion in Phase 3.
+- No unrestricted web crawling in Phase 3.
+- No autonomous self-training in Phase 3.
+- No final router or DevMind Teacher AI in Phase 3.
 - No scraping of closed AI chat interfaces.
 - No paid provider dependency.
 - No Docker or container-based development.
@@ -43,7 +43,7 @@ The long-term system will coordinate specialist student models trained or adapte
 1. Phase 0: repository and engineering foundation.
 2. Phase 1: Technology Student approved-source RAG MVP.
 3. Phase 2: verified learning and dataset-builder foundation.
-4. Phase 3: authentication, governance hardening, and future approved training experiments.
+4. Phase 3: controlled LoRA training, evaluation, and model-candidate management.
 5. Phase 4: verification and routing prototypes.
 6. Phase 5: unified DevMind Teacher AI interface.
 
@@ -74,4 +74,8 @@ Development uses local processes, MongoDB Community Server or an environment-con
 
 Phase 2 extends Technology Student v0.1 with verified automated learning preparation and a dataset builder. The system can analyze curriculum coverage, detect gaps, create bounded learning cycles, generate questions, generate candidate answers through approved providers, retrieve evidence, calculate verification and risk signals, require human review, create immutable dataset versions, export approved records, validate training configuration, and register model candidates.
 
-Phase 2 does not automatically train, modify, promote, replace, or deploy model weights.
+Phase 3 does not automatically download, train, modify, promote, replace, or deploy model weights.
+
+## Phase 3 Scope
+
+Phase 3 validates approved base-model manifests, inspects hardware, validates immutable dataset versions, creates reproducible splits, records baseline/candidate evaluations, runs mock smoke training through explicit commands, records training artifacts and hashes, detects regressions, registers model candidates, generates advisory recommendations, and requires human approval.

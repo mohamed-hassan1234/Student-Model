@@ -1,6 +1,6 @@
 # MongoDB Collections
 
-This document lists active DevMind AI collections through the Phase 0-2 audit.
+This document lists active DevMind AI collections through Phase 3.
 
 ## System Collections
 
@@ -48,10 +48,29 @@ This document lists active DevMind AI collections through the Phase 0-2 audit.
 - `deployment_recommendations`: non-deploying gate outputs. Indexed by `candidate_id`.
 - `rollback_records`: rollback metadata for future model-candidate operations. Indexed by `(candidate_id, created_at)`.
 
+## Phase 3 Controlled Training Collections
+
+- `base_model_manifests`: approved open-weight base-model metadata, pinned revisions, tokenizer revisions, license review, fine-tuning permission, remote-code status, hardware estimates, hashes, and approval state. Indexed by `(approval_status, updated_at)`.
+- `hardware_capability_reports`: local hardware inspection snapshots with OS, Python, CPU, RAM, GPU/CUDA, precision, disk, recommendation, and limitations. Indexed by `created_at`.
+- `training_dataset_validation_reports`: dataset entry-gate reports with approved counts, split counts, distributions, duplicate/leakage/secret checks, token estimates, resource estimates, and blockers. Indexed by `(dataset_version_id, created_at)`.
+- `dataset_split_manifests`: reproducible train/validation/held-out test split records with seed, grouped record assignments, and manifest hash. Indexed by `(dataset_version_id, seed)`.
+- `training_artifacts`: artifact path, type, SHA-256, size, and run linkage for adapters, checkpoints, metrics, and logs. Indexed by `(training_run_id, artifact_type)`.
+- `candidate_comparisons`: candidate-versus-baseline comparison reports with improvements, regressions, safety/citation/performance/resource changes, and recommendation. Indexed by `(candidate_id, created_at)`.
+- `model_approvals`: human approval, rejection, or more-evaluation actions for model candidates. Indexed by `(candidate_id, created_at)`.
+- `adapter_load_checks`: candidate adapter compatibility/hash/status checks for local provider integration. Indexed by `(candidate_id, checked_at)`.
+
+Shared Phase 2/3 collections extended in Phase 3:
+
+- `training_configs`: now also stores Phase 3 LoRA/QLoRA/mock-smoke effective configuration.
+- `training_runs`: now stores manual run metadata, hardware, checkpoints, artifact locations, hashes, status, and safe errors.
+- `model_candidates`: now stores Phase 3 candidate adapter metadata and recommendation state in addition to Phase 2 candidate foundations.
+- `model_evaluations`: now stores baseline, production, and candidate evaluation scores/unavailable reasons.
+- `deployment_recommendations`: now stores advisory Phase 3 recommendation records. Recommendations do not deploy.
+
 ## Relationships
 
 MongoDB relationships are represented by document references such as `source_id`, `document_id`, `document_version_id`, `chunk_id`, `question_id`, `candidate_id`, `review_id`, `dataset_candidate_id`, `dataset_version_id`, and `evaluation_set_id`. DevMind does not use relational joins or relational migrations.
 
 ## Retention Expectations
 
-Audit, review, dataset-version, source, and schema-version records should be retained indefinitely until a formal retention policy exists. Generated export files under local storage are rebuildable artifacts and must remain ignored by Git.
+Audit, review, dataset-version, source, schema-version, training-run, artifact-metadata, evaluation, comparison, recommendation, approval, and rollback records should be retained indefinitely until a formal retention policy exists. Generated export and training artifact files under local storage are rebuildable or reviewable artifacts and must remain ignored by Git.

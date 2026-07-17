@@ -101,21 +101,45 @@
     "required": ["evaluation_record_id", "category", "prompt", "content_hash"]
   },
   "training_configs": {
-    "required": ["training_config_id", "dataset_version", "training_method"]
+    "required": ["_id"]
   },
   "training_runs": {
     "required": ["status", "created_at"]
   },
   "model_candidates": {
-    "required": ["candidate_id", "base_model", "dataset_version", "approval_state"]
+    "required": ["candidate_id", "approval_state"]
   },
   "model_evaluations": {
-    "required": ["candidate_id", "created_at"]
+    "required": ["created_at"]
   },
   "deployment_recommendations": {
-    "required": ["candidate_id", "recommended", "created_at"]
+    "required": ["candidate_id", "created_at"]
   },
   "rollback_records": {
     "required": ["candidate_id", "created_at"]
+  },
+  "base_model_manifests": {
+    "required": ["manifest_id", "model_identifier", "exact_revision", "approval_status"]
+  },
+  "hardware_capability_reports": {
+    "required": ["report_id", "operating_system", "python_version", "created_at"]
+  },
+  "training_dataset_validation_reports": {
+    "required": ["report_id", "dataset_version_id", "valid", "created_at"]
+  },
+  "dataset_split_manifests": {
+    "required": ["split_manifest_id", "dataset_version_id", "manifest_hash", "created_at"]
+  },
+  "training_artifacts": {
+    "required": ["artifact_id", "training_run_id", "artifact_type", "path", "sha256"]
+  },
+  "candidate_comparisons": {
+    "required": ["comparison_id", "candidate_id", "recommendation", "created_at"]
+  },
+  "model_approvals": {
+    "required": ["approval_id", "candidate_id", "reviewer_id", "action", "created_at"]
+  },
+  "adapter_load_checks": {
+    "required": ["candidate_id", "loadable", "provider", "checked_at"]
   }
 }

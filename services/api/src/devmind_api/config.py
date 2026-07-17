@@ -50,6 +50,14 @@ class Settings(BaseSettings):
     teacher_provider: str = Field(default="mock", alias="TEACHER_PROVIDER")
     teacher_model_name: str = Field(default="mock-devmind-teacher", alias="TEACHER_MODEL_NAME")
     safe_code_runner_enabled: bool = Field(default=False, alias="SAFE_CODE_RUNNER_ENABLED")
+    training_artifact_directory: Path = Field(
+        default=Path("storage/generated/training"), alias="TRAINING_ARTIFACT_DIRECTORY"
+    )
+    training_max_runtime_minutes: int = Field(
+        default=60, ge=1, le=10080, alias="TRAINING_MAX_RUNTIME_MINUTES"
+    )
+    training_allow_remote_code: bool = Field(default=False, alias="TRAINING_ALLOW_REMOTE_CODE")
+    training_default_seed: int = Field(default=7, ge=0, alias="TRAINING_DEFAULT_SEED")
     ingestion_chunk_size: int = Field(default=1200, ge=200, le=8000, alias="INGESTION_CHUNK_SIZE")
     ingestion_chunk_overlap: int = Field(
         default=120, ge=0, le=2000, alias="INGESTION_CHUNK_OVERLAP"

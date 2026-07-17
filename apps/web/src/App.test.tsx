@@ -172,6 +172,88 @@ function installFetchMock() {
           ],
         });
       }
+      if (url.includes("/technology/training/hardware")) {
+        return jsonResponse({
+          status: "available",
+          report: {
+            report_id: "hw_1",
+            operating_system: "Windows",
+            python_version: "3.12.13",
+            cpu: "test-cpu",
+            system_ram_gb: 16,
+            gpu_available: false,
+            gpu_name: null,
+            gpu_memory_gb: null,
+            cuda_available: false,
+            available_disk_gb: 100,
+            recommended_training_mode: "cpu_only_smoke_test",
+            expected_limitations: ["CUDA GPU unavailable; real LoRA training may be slow or unavailable."],
+          },
+        });
+      }
+      if (url.includes("/technology/training/base-models")) {
+        return jsonResponse({
+          base_model_manifests: [
+            {
+              manifest_id: "base_1",
+              model_identifier: "local/open-weight-test",
+              exact_revision: "0123456789abcdef",
+              license_name: "Apache-2.0",
+              fine_tuning_permission: "allowed",
+              required_trust_remote_code: false,
+              human_license_review_status: "approved",
+              approval_status: "approved",
+            },
+          ],
+        });
+      }
+      if (url.includes("/technology/training/datasets/dsv_1/validation-report")) {
+        return jsonResponse({
+          report_id: "report_1",
+          dataset_version_id: "dsv_1",
+          valid: true,
+          approved_record_count: 1,
+          training_count: 1,
+          validation_count: 0,
+          held_out_test_count: 0,
+          secret_scan_result: "passed",
+          blocking_issues: [],
+        });
+      }
+      if (url.includes("/technology/training/runs")) {
+        return jsonResponse({
+          training_runs: [
+            {
+              run_id: "run_1",
+              experiment_name: "phase3-smoke",
+              status: "completed",
+              base_model_identifier: "local/open-weight-test",
+              dataset_version: "dsv_1",
+              current_step: 1,
+              adapter_location: "storage/generated/training/run_1/adapter.safetensors",
+              adapter_hash: "hash123",
+              metrics_location: "storage/generated/training/run_1/metrics.json",
+              safe_error_summary: null,
+            },
+          ],
+        });
+      }
+      if (url.includes("/technology/training/candidates")) {
+        return jsonResponse({
+          model_candidates: [
+            {
+              candidate_id: "candidate_1",
+              candidate_name: "Technology Student v0.1 Candidate",
+              base_model_manifest_id: "base_1",
+              dataset_version: "dsv_1",
+              approval_state: "pending",
+              deployment_recommendation: "needs_more_evaluation",
+              safety_status: "passed",
+              license_status: "approved",
+            },
+          ],
+        });
+      }
       if (url.includes("/curriculum")) {
         return jsonResponse({
           topics: [
@@ -279,6 +361,30 @@ describe("App", () => {
     await userEvent.click(screen.getByRole("button", { name: "models" }));
     expect(await screen.findByText("local-base")).toBeInTheDocument();
     expect(screen.getByText("Recommendation: not_recommended")).toBeInTheDocument();
+  });
+
+  it("shows Phase 3 training administration views", async () => {
+    render(<App />);
+
+    await userEvent.click(screen.getByRole("button", { name: "hardware" }));
+    expect(await screen.findByText("Hardware Assessment")).toBeInTheDocument();
+    expect(screen.getByText("cpu_only_smoke_test")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "base" }));
+    expect(await screen.findByText("local/open-weight-test")).toBeInTheDocument();
+    expect(screen.getByText("License: Apache-2.0")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "train-data" }));
+    expect(await screen.findByText("Latest Validation")).toBeInTheDocument();
+    expect(screen.getByText("Secret scan: passed")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "runs" }));
+    expect(await screen.findByText("phase3-smoke")).toBeInTheDocument();
+    expect(screen.getByText("Adapter hash: hash123")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "candidates" }));
+    expect(await screen.findByText("Technology Student v0.1 Candidate")).toBeInTheDocument();
+    expect(screen.getByText("Recommendation: needs_more_evaluation")).toBeInTheDocument();
   });
 
   it("shows insufficient-evidence chat response", async () => {

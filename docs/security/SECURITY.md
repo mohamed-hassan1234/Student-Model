@@ -42,7 +42,7 @@ Local models can leak sensitive prompts, produce unsafe outputs, or behave incon
 
 ## Model Deployment Controls
 
-No automatic model download, training, promotion, or deployment is allowed in Phase 2. Future model promotion must require evaluation evidence, rollback metadata, license review, and human approval.
+No automatic model download, training, promotion, or deployment is allowed in Phase 3. Model staging requires evaluation evidence, rollback metadata, license review, and human approval.
 
 ## Access Control Planning
 
@@ -68,3 +68,7 @@ Administrative mutation endpoints use a temporary local placeholder header, `x-d
 The safe code runner is disabled by default. Arbitrary generated code is not executed on the host, and execution-dependent claims require future isolation and human review.
 
 Dataset exports exclude rejected records, unresolved licenses, records without training permission, teacher outputs without training permission, blocked sources, and evaluation records.
+
+## Phase 3 Training Safety
+
+Phase 3 validates base-model manifests, rejects unresolved licenses and unapproved remote code, records dataset hashes, refuses automatic resume from unknown checkpoints, writes artifacts only under ignored storage paths, and stores artifact hashes in MongoDB. Real access control remains required before shared use.

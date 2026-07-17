@@ -10,6 +10,7 @@ from devmind_shared.time import utc_now
 SYSTEM_SCHEMA_VERSION = 1
 PHASE_1_SCHEMA_VERSION = 1
 PHASE_2_SCHEMA_VERSION = 1
+PHASE_3_SCHEMA_VERSION = 1
 
 PHASE_2_COLLECTIONS = {
     "curricula": [("student_id", ASCENDING), ("version", ASCENDING)],
@@ -33,6 +34,20 @@ PHASE_2_COLLECTIONS = {
     "model_evaluations": [("candidate_id", ASCENDING), ("created_at", ASCENDING)],
     "deployment_recommendations": [("candidate_id", ASCENDING)],
     "rollback_records": [("candidate_id", ASCENDING), ("created_at", ASCENDING)],
+}
+
+PHASE_3_COLLECTIONS = {
+    "base_model_manifests": [("approval_status", ASCENDING), ("updated_at", ASCENDING)],
+    "hardware_capability_reports": [("created_at", ASCENDING)],
+    "training_dataset_validation_reports": [
+        ("dataset_version_id", ASCENDING),
+        ("created_at", ASCENDING),
+    ],
+    "dataset_split_manifests": [("dataset_version_id", ASCENDING), ("seed", ASCENDING)],
+    "training_artifacts": [("training_run_id", ASCENDING), ("artifact_type", ASCENDING)],
+    "candidate_comparisons": [("candidate_id", ASCENDING), ("created_at", ASCENDING)],
+    "model_approvals": [("candidate_id", ASCENDING), ("created_at", ASCENDING)],
+    "adapter_load_checks": [("candidate_id", ASCENDING), ("checked_at", ASCENDING)],
 }
 
 
@@ -122,6 +137,8 @@ async def create_indexes(database: Any) -> None:
     )
     for collection_name, keys in PHASE_2_COLLECTIONS.items():
         await database[collection_name].create_index(keys, name=f"{collection_name}_primary")
+    for collection_name, keys in PHASE_3_COLLECTIONS.items():
+        await database[collection_name].create_index(keys, name=f"{collection_name}_primary")
     await database["curriculum_topics"].create_index(
         [("topic_id", ASCENDING)], unique=True, name="uniq_topic_id"
     )
@@ -133,6 +150,20 @@ async def create_indexes(database: Any) -> None:
     )
     await database["dataset_records"].create_index(
         [("content_hash", ASCENDING)], name="dataset_record_content_hash"
+    )
+    await database["training_configs"].create_index(
+        [("dataset_version_id", ASCENDING), ("training_method", ASCENDING)],
+        name="phase3_training_configs_dataset_method",
+    )
+    await database["training_runs"].create_index(
+        [("training_config_version", ASCENDING)], name="training_runs_config"
+    )
+    await database["model_candidates"].create_index(
+        [("training_run_id", ASCENDING)], name="model_candidates_training_run"
+    )
+    await database["model_evaluations"].create_index(
+        [("subject_id", ASCENDING), ("created_at", ASCENDING)],
+        name="model_evaluations_subject",
     )
 
 
@@ -263,6 +294,8 @@ async def create_validators(database: Any) -> None:
     }
     for collection_name in PHASE_2_COLLECTIONS:
         validators[collection_name] = {"$jsonSchema": {"bsonType": "object", "required": ["_id"]}}
+    for collection_name in PHASE_3_COLLECTIONS:
+        validators[collection_name] = {"$jsonSchema": {"bsonType": "object", "required": ["_id"]}}
     existing = await database.list_collection_names()
     for collection_name, validator in validators.items():
         if collection_name not in existing:
@@ -306,6 +339,17 @@ async def record_schema_version(database: Any) -> None:
             "$set": {
                 "component": "phase_2_verified_dataset_builder",
                 "version": PHASE_2_SCHEMA_VERSION,
+                "updated_at": utc_now(),
+            }
+        },
+        upsert=True,
+    )
+    await database["system_schema_versions"].update_one(
+        {"component": "phase_3_controlled_lora_training"},
+        {
+            "$set": {
+                "component": "phase_3_controlled_lora_training",
+                "version": PHASE_3_SCHEMA_VERSION,
                 "updated_at": utc_now(),
             }
         },

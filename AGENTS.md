@@ -2,7 +2,7 @@
 
 ## Purpose and Phase
 
-DevMind AI is a local-first, low-cost, modular AI learning platform. The repository is in Phase 2: Verified Automated Learning and Dataset Builder. Do not add automatic model training, model-weight modification, model promotion, final routing, unrestricted web crawling, multiple specialist models, or DevMind Teacher AI behavior before an approved later phase.
+DevMind AI is a local-first, low-cost, modular AI learning platform. The repository is in Phase 3: Controlled LoRA Training, Evaluation, and Model Candidate Management. Do not add automatic model download, automatic training, model promotion, final routing, unrestricted web crawling, multiple specialist models, or DevMind Teacher AI behavior before an approved later phase.
 
 ## Repository Map
 
@@ -11,6 +11,7 @@ DevMind AI is a local-first, low-cost, modular AI learning platform. The reposit
 - `services/model_gateway`: future model-provider contracts and deterministic mock provider.
 - `services/api/src/devmind_api/technology`: Technology Student source registry, ingestion, parsing, chunking, embedding, retrieval, and RAG services.
 - `services/api/src/devmind_api/technology/learning_*`: Phase 2 curriculum, learning-cycle, verification, review, dataset, evaluation, training-prep, and model-candidate foundations.
+- `services/api/src/devmind_api/technology/training_*`: Phase 3 base-model manifests, hardware inspection, dataset entry gates, split manifests, training-run metadata, smoke training, evaluation, regression, approval, and candidate controls.
 - `apps/web`: React, TypeScript, Vite, Tailwind status app.
 - `infra/mongodb`: MongoDB indexes, validators, and schema-version foundation.
 - `scripts`: local development, validation, and MongoDB bootstrap scripts.
@@ -23,7 +24,7 @@ DevMind AI is a local-first, low-cost, modular AI learning platform. The reposit
 - Architecture: `ARCHITECTURE.md` and `docs/architecture/SYSTEM_ARCHITECTURE.md`
 - Database rules: `docs/database/MONGODB_ARCHITECTURE.md`
 - Source policy: `docs/data-governance/SOURCE_POLICY.md`
-- Current plan/status: `docs/plans/active/PHASE_2_PLAN.md`, `docs/status/PROJECT_STATUS.md`
+- Current plan/status: `docs/plans/active/PHASE_3_PLAN.md`, `docs/status/PROJECT_STATUS.md`
 
 ## Standards and Validation
 
@@ -47,4 +48,4 @@ Do not add Docker, Docker Compose, Dockerfiles, Kubernetes, Testcontainers, paid
 
 ## Definition of Done
 
-Phase 2 work is done when curriculum coverage, gaps, bounded cycles, generated questions, verified candidate answers, mandatory human review, immutable dataset versions, reproducible exports, training-prep validation, model-candidate registration, tests, and docs are complete without Docker, paid APIs, closed-chat scraping, relational databases, or automatic training.
+Phase 3 work is done when base-model manifests, hardware reports, dataset gates, reproducible splits, manual smoke training, training-run metadata, evaluation, regression gates, model-candidate registration, human approval, tests, and docs are complete without Docker, paid APIs, closed-chat scraping, relational databases, automatic model downloads, or automatic production promotion.

@@ -116,6 +116,68 @@ export type ModelCandidate = {
   deployment_recommendation: string;
 };
 
+export type HardwareReport = {
+  report_id: string;
+  operating_system: string;
+  python_version: string;
+  cpu: string;
+  system_ram_gb: number;
+  gpu_available: boolean;
+  gpu_name: string | null;
+  gpu_memory_gb: number | null;
+  cuda_available: boolean;
+  available_disk_gb: number;
+  recommended_training_mode: string;
+  expected_limitations: string[];
+};
+
+export type BaseModelManifest = {
+  manifest_id: string;
+  model_identifier: string;
+  exact_revision: string;
+  license_name: string;
+  fine_tuning_permission: string;
+  required_trust_remote_code: boolean;
+  human_license_review_status: string;
+  approval_status: string;
+};
+
+export type TrainingDatasetValidationReport = {
+  report_id: string;
+  dataset_version_id: string;
+  valid: boolean;
+  approved_record_count: number;
+  training_count: number;
+  validation_count: number;
+  held_out_test_count: number;
+  secret_scan_result: string;
+  blocking_issues: string[];
+};
+
+export type TrainingRun = {
+  run_id: string;
+  experiment_name: string;
+  status: string;
+  base_model_identifier: string;
+  dataset_version: string;
+  current_step: number;
+  adapter_location: string | null;
+  adapter_hash: string | null;
+  metrics_location: string | null;
+  safe_error_summary: string | null;
+};
+
+export type Phase3ModelCandidate = {
+  candidate_id: string;
+  candidate_name: string;
+  base_model_manifest_id: string;
+  dataset_version: string;
+  approval_state: string;
+  deployment_recommendation: string;
+  safety_status: string;
+  license_status: string;
+};
+
 export type StudentAnswer = {
   answer: string;
   confidence: number;
@@ -211,6 +273,34 @@ export async function fetchDatasetRegistry(): Promise<{
 
 export async function fetchModelCandidates(): Promise<ModelCandidate[]> {
   const result = await getJson<{ model_candidates: ModelCandidate[] }>("/api/v1/technology/learning/model-candidates");
+  return result.model_candidates;
+}
+
+export async function fetchHardwareReport(): Promise<HardwareReport | null> {
+  const result = await getJson<{ status: string; report: HardwareReport | null }>("/api/v1/technology/training/hardware");
+  return result.report;
+}
+
+export async function fetchBaseModelManifests(): Promise<BaseModelManifest[]> {
+  const result = await getJson<{ base_model_manifests: BaseModelManifest[] }>("/api/v1/technology/training/base-models");
+  return result.base_model_manifests;
+}
+
+export async function fetchTrainingDatasetValidation(datasetVersionId: string): Promise<TrainingDatasetValidationReport | null> {
+  try {
+    return await getJson<TrainingDatasetValidationReport>(`/api/v1/technology/training/datasets/${datasetVersionId}/validation-report`);
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchTrainingRuns(): Promise<TrainingRun[]> {
+  const result = await getJson<{ training_runs: TrainingRun[] }>("/api/v1/technology/training/runs");
+  return result.training_runs;
+}
+
+export async function fetchPhase3ModelCandidates(): Promise<Phase3ModelCandidate[]> {
+  const result = await getJson<{ model_candidates: Phase3ModelCandidate[] }>("/api/v1/technology/training/candidates");
   return result.model_candidates;
 }
 

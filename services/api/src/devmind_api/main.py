@@ -13,6 +13,7 @@ from devmind_api.middleware import CorrelationIdMiddleware, SecurityHeadersMiddl
 from devmind_api.routes.health import router as health_router
 from devmind_api.routes.learning import router as learning_router
 from devmind_api.routes.technology import router as technology_router
+from devmind_api.routes.training import router as training_router
 
 settings = get_settings()
 configure_logging(settings.log_level)
@@ -48,6 +49,7 @@ def create_app(app_settings: Settings | None = None) -> FastAPI:
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(technology_router, prefix="/api/v1")
     app.include_router(learning_router, prefix="/api/v1")
+    app.include_router(training_router, prefix="/api/v1")
     register_exception_handlers(app)
     return app
 

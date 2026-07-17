@@ -108,21 +108,49 @@
     { "keys": [["category", 1], ["content_hash", 1]], "name": "evaluation_records_primary" }
   ],
   "training_configs": [
-    { "keys": [["dataset_version", 1], ["training_method", 1]], "name": "training_configs_primary" }
+    { "keys": [["dataset_version", 1], ["training_method", 1]], "name": "training_configs_primary" },
+    { "keys": [["dataset_version_id", 1], ["training_method", 1]], "name": "phase3_training_configs_dataset_method" }
   ],
   "training_runs": [
-    { "keys": [["status", 1], ["created_at", 1]], "name": "training_runs_primary" }
+    { "keys": [["status", 1], ["created_at", 1]], "name": "training_runs_primary" },
+    { "keys": [["training_config_version", 1]], "name": "training_runs_config" }
   ],
   "model_candidates": [
-    { "keys": [["approval_state", 1], ["dataset_version", 1]], "name": "model_candidates_primary" }
+    { "keys": [["approval_state", 1], ["dataset_version", 1]], "name": "model_candidates_primary" },
+    { "keys": [["training_run_id", 1]], "name": "model_candidates_training_run" }
   ],
   "model_evaluations": [
-    { "keys": [["candidate_id", 1], ["created_at", 1]], "name": "model_evaluations_primary" }
+    { "keys": [["candidate_id", 1], ["created_at", 1]], "name": "model_evaluations_primary" },
+    { "keys": [["subject_id", 1], ["created_at", 1]], "name": "model_evaluations_subject" }
   ],
   "deployment_recommendations": [
     { "keys": [["candidate_id", 1]], "name": "deployment_recommendations_primary" }
   ],
   "rollback_records": [
     { "keys": [["candidate_id", 1], ["created_at", 1]], "name": "rollback_records_primary" }
+  ],
+  "base_model_manifests": [
+    { "keys": [["approval_status", 1], ["updated_at", 1]], "name": "base_model_manifests_primary" }
+  ],
+  "hardware_capability_reports": [
+    { "keys": [["created_at", 1]], "name": "hardware_capability_reports_primary" }
+  ],
+  "training_dataset_validation_reports": [
+    { "keys": [["dataset_version_id", 1], ["created_at", 1]], "name": "training_dataset_validation_reports_primary" }
+  ],
+  "dataset_split_manifests": [
+    { "keys": [["dataset_version_id", 1], ["seed", 1]], "name": "dataset_split_manifests_primary" }
+  ],
+  "training_artifacts": [
+    { "keys": [["training_run_id", 1], ["artifact_type", 1]], "name": "training_artifacts_primary" }
+  ],
+  "candidate_comparisons": [
+    { "keys": [["candidate_id", 1], ["created_at", 1]], "name": "candidate_comparisons_primary" }
+  ],
+  "model_approvals": [
+    { "keys": [["candidate_id", 1], ["created_at", 1]], "name": "model_approvals_primary" }
+  ],
+  "adapter_load_checks": [
+    { "keys": [["candidate_id", 1], ["checked_at", 1]], "name": "adapter_load_checks_primary" }
   ]
 }

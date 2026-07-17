@@ -2,7 +2,7 @@
 
 ## React Frontend
 
-`apps/web` is a React, TypeScript, Vite, and Tailwind CSS app. It exposes system status, sources, Technology Student chat, curriculum pages, learning cycles, review queue, dataset registry, and model-candidate registry views.
+`apps/web` is a React, TypeScript, Vite, and Tailwind CSS app. It exposes system status, sources, Technology Student chat, curriculum pages, learning cycles, review queue, dataset registry, Phase 3 training administration, and model-candidate registry views.
 
 ## FastAPI API
 
@@ -21,6 +21,7 @@ MongoDB is the primary database. The API uses PyMongo Async API through a connec
 - Ingestion: approved-source fetch/upload, parsing, normalization, chunking, embeddings, and storage.
 - Knowledge: source-grounded chunk and embedding retrieval.
 - Learning: Phase 2 curriculum coverage, gap detection, bounded generation, verification, review, dataset-versioning, export, training-prep validation, and model-candidate metadata.
+- Training: Phase 3 base-model manifests, hardware reports, dataset gates, split manifests, training-run metadata, smoke training, evaluation, regression, recommendation, approvals, and adapter checks.
 - Router: reserved for future routing prototypes; no final router exists.
 - Model gateway: contains provider contracts and a deterministic mock provider.
 
@@ -30,7 +31,7 @@ Provider contracts prepare for Ollama, llama.cpp-compatible HTTP, vLLM-compatibl
 
 ## Future Training Pipeline
 
-Training preparation is metadata-only in Phase 2. No training code runs automatically, no model weights are downloaded, and no model candidate is promoted.
+Phase 3 permits explicit manual smoke training and controlled LoRA/QLoRA preparation. No training runs automatically, no model weights are downloaded automatically, and no model candidate is promoted.
 
 ## Future Specialist Models
 
@@ -46,7 +47,7 @@ Secrets are environment-only. Readiness does not expose credentials. File upload
 
 ## Data Flow
 
-Frontend calls API status, source, Technology Student, and Phase 2 learning endpoints. API checks local process/configuration and MongoDB ping. Worker may claim jobs from MongoDB when explicitly enabled. Model gateway defaults to deterministic mock responses and can be configured for approved local HTTP providers.
+Frontend calls API status, source, Technology Student, Phase 2 learning, and Phase 3 training endpoints. API checks local process/configuration and MongoDB ping. Worker may claim jobs from MongoDB when explicitly enabled. Model gateway defaults to deterministic mock responses and can be configured for approved local HTTP providers.
 
 ## Process Boundaries
 
