@@ -46,7 +46,7 @@ No automatic model download, training, promotion, or deployment is allowed in Ph
 
 ## Access Control Planning
 
-Authentication and authorization are placeholders in Phase 2. Any shared or production use must add real access controls first.
+Phase 4 adds local user authentication, role-based permissions, session revocation, security events, and governance checks for administrative operations.
 
 ## Audit Logging
 
@@ -63,7 +63,7 @@ Hidden data collection, scraping closed interfaces, bypassing paywalls, and trai
 
 Phase 2 adds automated preparation but not automated training. Generated records require source permission, teacher-output permission, verification signals, risk scoring, and explicit human approval before dataset use.
 
-Administrative mutation endpoints use a temporary local placeholder header, `x-devmind-admin: local-admin`, until real authentication is designed. This is not production authorization.
+Administrative mutation endpoints require bearer authentication and explicit permissions. Dataset and training actions are still bounded by human review and policy checks.
 
 The safe code runner is disabled by default. Arbitrary generated code is not executed on the host, and execution-dependent claims require future isolation and human review.
 
@@ -71,4 +71,8 @@ Dataset exports exclude rejected records, unresolved licenses, records without t
 
 ## Phase 3 Training Safety
 
-Phase 3 validates base-model manifests, rejects unresolved licenses and unapproved remote code, records dataset hashes, refuses automatic resume from unknown checkpoints, writes artifacts only under ignored storage paths, and stores artifact hashes in MongoDB. Real access control remains required before shared use.
+Phase 3 validates base-model manifests, rejects unresolved licenses and unapproved remote code, records dataset hashes, refuses automatic resume from unknown checkpoints, writes artifacts only under ignored storage paths, and stores artifact hashes in MongoDB.
+
+## Phase 4 Governance Safety
+
+Phase 4 requires authenticated users, explicit permissions, independent model/security approval, auditable staging records, and manual rollback metadata. It does not automatically deploy or promote model candidates.

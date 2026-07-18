@@ -9,4 +9,4 @@ All paths are under `/api/v1/technology/training`.
 - Evaluation: `POST /evaluations/baseline-unavailable`, `POST /evaluations/candidate`, `POST /candidates/{candidate_id}/compare`
 - Candidates: `POST /candidates`, `GET /candidates`, `GET /candidates/{candidate_id}`, `GET /candidates/{candidate_id}/regression-report`, `POST /candidates/{candidate_id}/recommendation`, approval/reject/request-more-evaluation endpoints, audit history, and adapter-load check.
 
-Mutation and expensive endpoints require `x-devmind-admin: local-admin` as a temporary placeholder.
+Mutation and expensive endpoints now require bearer authentication with the relevant Phase 4 permission.

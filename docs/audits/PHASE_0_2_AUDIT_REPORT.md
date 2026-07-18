@@ -65,7 +65,7 @@ Reviewed AGENTS.md, README.md, ARCHITECTURE.md, pyproject.toml, package manifest
 - Phase 0 health/readiness endpoints are present.
 - Phase 1 Technology Student endpoints are present.
 - Phase 2 learning, review, dataset, evaluation, training-config, and model-candidate endpoints are present.
-- Administrative mutation endpoints use a placeholder header and are not production authorization.
+- Historical finding before Phase 4: administrative mutation endpoints used a temporary local admin mechanism and were not production authorization.
 
 ## Frontend Findings
 
@@ -116,7 +116,7 @@ Resolved:
 
 ## Medium-Priority Issues
 
-- Real authentication and authorization are not implemented. Administrative controls are placeholders.
+- Historical finding before Phase 4: real authentication and authorization were not implemented.
 - MongoDB bootstrap was not executed during this audit to avoid mutating the configured database without explicit target confirmation.
 - Phase 2 verification remains deterministic/mock-oriented and should be hardened before real training use.
 - POSIX shell syntax checks were not executed because `sh` is unavailable in this Windows environment.
@@ -140,7 +140,7 @@ Resolved:
 
 - Review the audit report and governance documents.
 - Confirm MongoDB target before running `uv run python scripts/bootstrap_mongodb.py`.
-- Replace placeholder admin authorization before shared or production use.
+- Historical Phase 4 entry criterion: replace placeholder admin authorization before shared or production use.
 - Review source, dataset, teacher-output, base-model, and adapter licenses before any future training.
 
 ## Final Phase 3 Decision

@@ -1,6 +1,6 @@
 # MongoDB Collections
 
-This document lists active DevMind AI collections through Phase 3.
+This document lists active DevMind AI collections through Phase 4.
 
 ## System Collections
 
@@ -67,10 +67,30 @@ Shared Phase 2/3 collections extended in Phase 3:
 - `model_evaluations`: now stores baseline, production, and candidate evaluation scores/unavailable reasons.
 - `deployment_recommendations`: now stores advisory Phase 3 recommendation records. Recommendations do not deploy.
 
+## Phase 4 Authentication And Governance Collections
+
+- `users`: local account records with normalized email, username, display name, Argon2 password hash, active/lockout state, login counters, password timestamps, and session revocation version. Indexed by unique `normalized_email` and `(active, created_at)`.
+- `roles`: static role registry for operational visibility. Indexed by unique `role`.
+- `permissions`: static permission registry for operational visibility. Indexed by unique `permission`.
+- `role_permissions`: static role-to-permission mapping. Indexed by unique `(role, permission)`.
+- `user_roles`: active role assignments by user. Indexed by unique `(user_id, role)` and `(role, removed)`.
+- `auth_sessions`: session metadata with user ID, refresh family, hashed refresh token, refresh token ID, user agent, IP address, revoked flag, expiration, and timestamps. Indexed by `(user_id, revoked)`, unique `refresh_token_hash`, and `expires_at`.
+- `refresh_token_families`: refresh-family metadata for rotation/reuse handling. Indexed by `(user_id, revoked)`.
+- `login_attempts`: login attempt records with normalized email, success flag, IP address, and timestamp. Indexed by `(normalized_email, created_at)` and `(success, created_at)`.
+- `password_reset_events`: reserved administrative password-reset event records. Indexed by `(user_id, created_at)`.
+- `security_events`: account lockout, token-reuse, and permission-denial events. Indexed by `(severity, created_at)` and `(event_type, created_at)`.
+- `governance_policies`: enabled governance policies and rule metadata. Indexed by unique `policy_id`.
+- `approval_workflows`: reserved multi-step workflow records. Indexed by `(status, created_at)`.
+- `approval_requests`: model-candidate approval requests with requester, reason, required decisions, expiry, status, and timestamps. Indexed by `(candidate_id, status)` and `(requested_by, created_at)`.
+- `approval_decisions`: model/security approval decisions with reviewer identity, reviewer roles, decision type, approval state, notes, and timestamp. Indexed by `(approval_request_id, decision_type)` and `(reviewer_id, created_at)`.
+- `staging_requests`: manual staging readiness records with candidate ID, approval request ID, requesting operator, status, target environment, adapter hash, and reason. Indexed by `(candidate_id, status)` and `approval_request_id`.
+- `staging_events`: immutable staging event history with actor, result, reason, and risk level. Indexed by `(staging_request_id, created_at)`.
+- `production_model_assignments`: metadata records that an operator manually assigned a candidate to a named staging environment. Indexed by `(environment, active)` and `candidate_id`. These records do not change runtime configuration automatically.
+
 ## Relationships
 
-MongoDB relationships are represented by document references such as `source_id`, `document_id`, `document_version_id`, `chunk_id`, `question_id`, `candidate_id`, `review_id`, `dataset_candidate_id`, `dataset_version_id`, and `evaluation_set_id`. DevMind does not use relational joins or relational migrations.
+MongoDB relationships are represented by document references such as `source_id`, `document_id`, `document_version_id`, `chunk_id`, `question_id`, `candidate_id`, `review_id`, `dataset_candidate_id`, `dataset_version_id`, `evaluation_set_id`, `user_id`, `session_id`, `approval_request_id`, and `staging_request_id`. DevMind does not use relational joins or relational migrations.
 
 ## Retention Expectations
 
-Audit, review, dataset-version, source, schema-version, training-run, artifact-metadata, evaluation, comparison, recommendation, approval, and rollback records should be retained indefinitely until a formal retention policy exists. Generated export and training artifact files under local storage are rebuildable or reviewable artifacts and must remain ignored by Git.
+Audit, security-event, review, dataset-version, source, schema-version, training-run, artifact-metadata, evaluation, comparison, recommendation, approval, staging, and rollback records should be retained indefinitely until a formal retention policy exists. Session and login-attempt records may receive future TTL cleanup after a reviewed retention decision. Generated export and training artifact files under local storage are rebuildable or reviewable artifacts and must remain ignored by Git.

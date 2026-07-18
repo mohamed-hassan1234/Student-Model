@@ -14,13 +14,44 @@ Complete and audited. Phase 2 provides curriculum coverage, knowledge-gap detect
 
 ## Phase 3 Status
 
-Implemented and under validation. Phase 3 provides base-model manifest registration/validation, hardware capability inspection, approved dataset entry gate, reproducible split manifests, manual training configuration validation, explicit smoke-training execution, training-run and artifact metadata, baseline unavailable records, candidate mock evaluation records, regression detection, comparison reports, model-candidate registration, advisory deployment recommendations, manual approval actions, adapter load checks, API endpoints, frontend administration pages, docs, and tests. Phase 3 does not automatically download models, start real training, deploy, promote, or change production model settings.
+Complete. Phase 3 provides base-model manifest registration/validation, hardware capability inspection, approved dataset entry gate, reproducible split manifests, manual training configuration validation, explicit smoke-training execution, training-run and artifact metadata, baseline unavailable records, candidate mock evaluation records, regression detection, comparison reports, model-candidate registration, advisory deployment recommendations, manual approval actions, adapter load checks, API endpoints, frontend administration pages, docs, and tests. Phase 3 does not automatically download models, start real training, deploy, promote, or change production model settings.
+
+## Phase 4 Status
+
+Validation completed with remediation. Phase 4 adds Argon2 password hashing, JWT access/refresh tokens, refresh-token rotation and reuse detection, refresh-family revocation, session-expiry checks, local users, role-based permissions, authenticated route dependencies, first-super-admin bootstrap command, security events, governance approval requests, model/security approval separation of duties, approval expiry/cancellation, emergency override auditing, manual staging request records, manual assignment metadata, rollback metadata, MongoDB indexes/schema version records, frontend authentication/governance/staging views, and documentation. Phase 4 does not automatically train, deploy, promote, download, upload, replace, or restart model artifacts.
+
+## Phase 5 Status
+
+Blocked at the mandatory entry gate on 2026-07-18. A draft human Phase 4 security review now exists at `docs/reviews/PHASE_4_HUMAN_SECURITY_REVIEW.md`, and the signoff template exists at `docs/reviews/PHASE_4_SECURITY_SIGNOFF_TEMPLATE.md`. The review remains invalid for Phase 5 entry because it is marked `REVIEW_INCOMPLETE` and still contains placeholder human signoff fields for reviewer name, commit confirmation, review date, signature/confirmation, and project-owner acknowledgement. Phase 5 implementation did not begin. No base model was selected, no dataset was finalized, no evaluation set was frozen, no training host was approved, no model artifacts were downloaded, no training configuration was generated, no real training started, and no model was staged, promoted, published, merged, or deployed.
 
 ## Audit Status
 
-Phase 0-2 audit completed. Audit plan moved to `docs/plans/completed/PHASE_0_2_AUDIT_PLAN.md`. Active plan: `docs/plans/active/PHASE_3_PLAN.md`. Audit report: `docs/audits/PHASE_0_2_AUDIT_REPORT.md`.
+Phase 0-2 audit completed. Phase 4 validation/security audit completed with technical validation passing and human security review still required. Phase 4 plans were moved to `docs/plans/completed/`. Active plan: `docs/plans/active/PHASE_5_PLAN.md`, currently blocked by missing human security sign-off. Audit reports: `docs/audits/PHASE_0_2_AUDIT_REPORT.md` and `docs/audits/PHASE_4_SECURITY_AUDIT_REPORT.md`.
 
 ## Validation Results
+
+Phase 4 validation/security audit on 2026-07-18:
+
+- `git status --short`: passed.
+- `git log --oneline -5`: passed.
+- `uv lock --check`: passed.
+- `uv sync --locked`: passed.
+- `npm ci`: passed, 0 vulnerabilities.
+- `npm audit --json`: passed, 0 vulnerabilities.
+- `uv run ruff format --check .`: passed.
+- `uv run ruff check .`: passed.
+- `uv run mypy`: passed.
+- `uv run pytest`: passed, 62 passed and 1 skipped guarded MongoDB integration test.
+- `npm --prefix apps/web run lint`: passed.
+- `npm --prefix apps/web run typecheck`: passed.
+- `npm --prefix apps/web run test:run`: passed, 11 passed.
+- `npm --prefix apps/web run build`: passed.
+- `powershell -ExecutionPolicy Bypass -File scripts/validate.ps1`: passed.
+- Prohibited Docker/container filename scan: passed, no matches.
+- Runtime/config prohibited dependency scan: passed; only validation-script guard strings were present.
+- Placeholder admin bypass scan for `x-devmind-admin` and `local-admin`: passed, no matches.
+- Tracked model-weight/generated-dataset artifact scan: passed, no matches.
+- `sh -n scripts/dev.sh`, `sh -n scripts/stop.sh`, and `sh -n scripts/validate.sh`: not executed because `sh` is not installed in this Windows environment.
 
 Final audit validation on 2026-07-17:
 
@@ -77,9 +108,25 @@ Final Phase 3 validation on 2026-07-17:
 - Tracked generated/model artifact scan: passed, no matches.
 - Hardware capability detector: Windows 11, Python 3.12.13, Intel CPU, about 15.72 GB RAM, no CUDA GPU, 33.38 GB free disk, recommended mode `cpu_only_smoke_test`.
 
+Phase 4 validation during implementation on 2026-07-17:
+
+- `uv add argon2-cffi PyJWT`: passed.
+- `uv add email-validator`: passed.
+- `uv run python -m py_compile services/api/src/devmind_api/routes/auth.py`: passed.
+- `uv run python -m py_compile services/api/src/devmind_api/routes/governance.py services/api/src/devmind_api/governance/services.py services/api/src/devmind_api/routes/technology.py services/api/src/devmind_api/routes/learning.py services/api/src/devmind_api/routes/training.py services/api/src/devmind_api/main.py`: passed.
+- `uv run python -m py_compile services/api/src/devmind_api/routes/technology.py services/api/src/devmind_api/routes/learning.py services/api/src/devmind_api/routes/training.py scripts/auth_cli.py scripts/training_cli.py`: passed.
+- `uv run ruff format services/api/src services/api/tests scripts`: passed and reformatted touched Python files.
+- `uv run ruff check services/api/src services/api/tests scripts --fix`: partially executed; import fixes were applied and remaining findings were explicit false positives for JWT type labels and deterministic test credentials, which were annotated.
+- A subsequent `uv run ruff check services/api/src services/api/tests scripts` attempt was blocked by the execution environment usage limit before completion. Exact local command: `uv run ruff check services/api/src services/api/tests scripts`.
+- Secret-pattern scan (`rg -n "password\\s*=|secret\\s*=|api[_-]?key\\s*=" . --glob '!uv.lock' --glob '!node_modules/**' --glob '!apps/web/dist/**'`): passed, no matches.
+- Legacy local-admin authorization scan: passed, no matches.
+- Prohibited-technology text scan: reviewed; matches are prohibition statements, historical audit notes, or validation scripts, not implementation dependencies or artifacts.
+
 ## Known Limitations
 
-- Administrative authorization is a placeholder header and not production security.
+- Phase 4 technical validation passes, but Phase 5 remains NO-GO until a human security reviewer signs off.
+- A full per-IP rate limiter is not implemented yet; Phase 4 has login-attempt recording, failed-login counters, and account lockout.
+- Unix shell syntax checks were not executed because `sh` is unavailable on this Windows machine.
 - Teacher generation is deterministic mock output by default.
 - Safe Code Runner is disabled and no arbitrary generated code is executed.
 - Training configuration validation does not download models or start training.
@@ -95,7 +142,8 @@ npm install
 npm --prefix apps/web install
 uv run python scripts/check_environment.py --mongodb-only
 uv run python scripts/bootstrap_mongodb.py
-uv run devmind-training inspect-hardware
+uv run devmind-auth bootstrap-admin --email <admin-email> --username <admin-username> --password "<strong-password>"
+uv run devmind-training --access-token <token> inspect-hardware
 scripts/dev.ps1
 ```
 
@@ -107,10 +155,11 @@ npm install
 npm --prefix apps/web install
 uv run python scripts/check_environment.py --mongodb-only
 uv run python scripts/bootstrap_mongodb.py
-uv run devmind-training inspect-hardware
+uv run devmind-auth bootstrap-admin --email <admin-email> --username <admin-username> --password "<strong-password>"
+uv run devmind-training --access-token <token> inspect-hardware
 ./scripts/dev.sh
 ```
 
-## Phase 4 Approval
+## Phase 5 Approval
 
-Phase 4 is not approved in this task. Recommended next scope is authentication/authorization, governance hardening, and operator workflow hardening before shared deployment. NO-GO for production/shared deployment until real access control and operational policies are implemented.
+Phase 5 is not approved. The current decision is **NO-GO** until the draft Phase 4 human security-review record is completed and signed by an authorized human reviewer with `APPROVED_FOR_PHASE_5_PREPARATION` or `CONDITIONALLY_APPROVED_FOR_PHASE_5_PREPARATION`.

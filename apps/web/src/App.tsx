@@ -5,18 +5,24 @@ import {
   fetchCurriculum,
   fetchSources,
   fetchSystemStatus,
+  login,
+  logout,
   type CurriculumTopic,
+  type PublicUser,
   type Source,
   type StudentAnswer,
   type SystemStatus,
 } from "./api/client";
+import { AuthPage } from "./components/AuthPage";
 import { BaseModelsPage } from "./components/BaseModelsPage";
 import { CurriculumPage } from "./components/CurriculumPage";
 import { CurriculumDashboardPage } from "./components/CurriculumDashboardPage";
 import { DatasetRegistryPage } from "./components/DatasetRegistryPage";
+import { GovernanceDashboardPage } from "./components/GovernanceDashboardPage";
 import { HardwareAssessmentPage } from "./components/HardwareAssessmentPage";
 import { HumanReviewQueuePage } from "./components/HumanReviewQueuePage";
 import { LearningCyclesPage } from "./components/LearningCyclesPage";
+import { ManualStagingPage } from "./components/ManualStagingPage";
 import { ModelCandidateRegistryPage } from "./components/ModelCandidateRegistryPage";
 import { Phase3ModelCandidatesPage } from "./components/Phase3ModelCandidatesPage";
 import { SourcesPage } from "./components/SourcesPage";
@@ -25,7 +31,7 @@ import { SystemStatusPage } from "./components/SystemStatusPage";
 import { TrainingDatasetsPage } from "./components/TrainingDatasetsPage";
 import { TrainingRunsPage } from "./components/TrainingRunsPage";
 
-type View = "status" | "sources" | "student" | "curriculum" | "learning" | "cycles" | "review" | "datasets" | "models" | "hardware" | "base" | "train-data" | "runs" | "candidates";
+type View = "status" | "auth" | "sources" | "student" | "curriculum" | "learning" | "cycles" | "review" | "datasets" | "models" | "hardware" | "base" | "train-data" | "runs" | "candidates" | "governance" | "staging";
 
 export function App() {
   const [status, setStatus] = useState<SystemStatus | null>(null);
@@ -34,6 +40,11 @@ export function App() {
   const [view, setView] = useState<View>("status");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<StudentAnswer | null>(null);
+  const [user, setUser] = useState<PublicUser | null>(null);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [asking, setAsking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -85,6 +96,26 @@ export function App() {
     }
   }
 
+  async function handleLogin() {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      const result = await login(loginEmail, loginPassword);
+      setUser(result.user);
+      setLoginPassword("");
+    } catch {
+      setAuthError("Sign in failed.");
+      setUser(null);
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  async function handleLogout() {
+    await logout();
+    setUser(null);
+  }
+
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto w-full max-w-6xl px-5 py-6 sm:px-8">
@@ -92,7 +123,7 @@ export function App() {
           <p className="text-sm font-semibold uppercase tracking-wide text-signal">DevMind AI</p>
           <h1 className="mt-2 text-3xl font-semibold text-ink">Technology Student v0.1</h1>
           <nav className="mt-4 flex flex-wrap gap-2" aria-label="Primary">
-            {(["status", "sources", "student", "curriculum", "learning", "cycles", "review", "datasets", "models", "hardware", "base", "train-data", "runs", "candidates"] as View[]).map((item) => (
+            {(["status", "auth", "sources", "student", "curriculum", "learning", "cycles", "review", "datasets", "models", "hardware", "base", "train-data", "runs", "candidates", "governance", "staging"] as View[]).map((item) => (
               <button
                 key={item}
                 type="button"
@@ -107,6 +138,19 @@ export function App() {
           </nav>
         </header>
         {view === "status" ? <SystemStatusPage status={status} loading={loading} error={error} embedded /> : null}
+        {view === "auth" ? (
+          <AuthPage
+            user={user}
+            email={loginEmail}
+            passwordValue={loginPassword}
+            loading={authLoading}
+            error={authError}
+            onEmailChange={setLoginEmail}
+            onPasswordChange={setLoginPassword}
+            onLogin={handleLogin}
+            onLogout={handleLogout}
+          />
+        ) : null}
         {view === "sources" ? <SourcesPage sources={sources} loading={loading} error={error} /> : null}
         {view === "student" ? (
           <StudentChatPage
@@ -129,6 +173,8 @@ export function App() {
         {view === "train-data" ? <TrainingDatasetsPage /> : null}
         {view === "runs" ? <TrainingRunsPage /> : null}
         {view === "candidates" ? <Phase3ModelCandidatesPage /> : null}
+        {view === "governance" ? <GovernanceDashboardPage /> : null}
+        {view === "staging" ? <ManualStagingPage /> : null}
       </div>
     </main>
   );

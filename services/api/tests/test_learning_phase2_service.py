@@ -76,7 +76,7 @@ async def test_learning_cycle_question_generation_is_bounded(
         domain="Frontend",
         topic="React",
         objectives=["Explain React state"],
-        human_owner="local-admin",
+        human_owner="test-admin",
         maximum_examples=999,
     )
 
@@ -107,7 +107,7 @@ async def test_candidate_verification_review_dataset_version_and_export(
         domain="Frontend",
         topic="React",
         objectives=["Explain state"],
-        human_owner="local-admin",
+        human_owner="test-admin",
         maximum_examples=1,
     )
     question = (await orchestrator.questions.generate_for_cycle(cycle.cycle_id))[0]
@@ -219,7 +219,7 @@ async def test_static_analyzer_and_disabled_safe_runner(fake_database: Any, tmp_
         domain="Web Fundamentals",
         topic="JavaScript",
         objectives=["Detect unsafe code"],
-        human_owner="local-admin",
+        human_owner="test-admin",
         maximum_examples=1,
     )
     question = (await orchestrator.questions.generate_for_cycle(cycle.cycle_id))[0]
@@ -267,7 +267,7 @@ async def test_training_config_validation_and_candidate_gate(
         evaluation_metrics={"citation_correctness": 0.7},
         safety_metrics={"prompt_injection_resistance": 0.9},
         created_at=utc_now(),
-        creator="local-admin",
+        creator="test-admin",
         approval_state=DatasetApprovalStatus.PENDING,
         rollback_metadata={"previous_model": "current-local"},
     )

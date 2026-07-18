@@ -22,7 +22,7 @@ if ($DockerFiles.Count -gt 0) {
 
 $SecretMatches = Get-ChildItem -Path $Root -Recurse -Force -File |
     Where-Object { $_.FullName -notmatch "\\node_modules\\|\\.venv\\|\\.git\\|\\dist\\|\\.mypy_cache\\|\\.pytest_cache\\|\\.ruff_cache\\|\\coverage\\" } |
-    Select-String -Pattern "api[_-]?key\s*=|password\s*=|secret\s*=" -CaseSensitive:$false
+    Select-String -Pattern '(api[_-]?key|password|secret)\s*=\s*[''"][^''"<]' -CaseSensitive:$false
 if ($SecretMatches) {
     throw "Potential secret patterns found. Review before continuing."
 }

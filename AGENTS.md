@@ -2,7 +2,7 @@
 
 ## Purpose and Phase
 
-DevMind AI is a local-first, low-cost, modular AI learning platform. The repository is in Phase 3: Controlled LoRA Training, Evaluation, and Model Candidate Management. Do not add automatic model download, automatic training, model promotion, final routing, unrestricted web crawling, multiple specialist models, or DevMind Teacher AI behavior before an approved later phase.
+DevMind AI is a local-first, low-cost, modular AI learning platform. The repository is blocked at the Phase 5 entry gate until human Phase 4 security sign-off is recorded. Do not add automatic model download, automatic training, model promotion, final routing, unrestricted web crawling, multiple specialist models, or DevMind Teacher AI behavior before an approved later phase.
 
 ## Repository Map
 
@@ -12,6 +12,8 @@ DevMind AI is a local-first, low-cost, modular AI learning platform. The reposit
 - `services/api/src/devmind_api/technology`: Technology Student source registry, ingestion, parsing, chunking, embedding, retrieval, and RAG services.
 - `services/api/src/devmind_api/technology/learning_*`: Phase 2 curriculum, learning-cycle, verification, review, dataset, evaluation, training-prep, and model-candidate foundations.
 - `services/api/src/devmind_api/technology/training_*`: Phase 3 base-model manifests, hardware inspection, dataset entry gates, split manifests, training-run metadata, smoke training, evaluation, regression, approval, and candidate controls.
+- `services/api/src/devmind_api/auth`: Phase 4 local authentication, JWT sessions, RBAC permissions, and security events.
+- `services/api/src/devmind_api/governance`: Phase 4 governance approval, separation-of-duty, manual staging, and rollback metadata.
 - `apps/web`: React, TypeScript, Vite, Tailwind status app.
 - `infra/mongodb`: MongoDB indexes, validators, and schema-version foundation.
 - `scripts`: local development, validation, and MongoDB bootstrap scripts.
@@ -24,7 +26,7 @@ DevMind AI is a local-first, low-cost, modular AI learning platform. The reposit
 - Architecture: `ARCHITECTURE.md` and `docs/architecture/SYSTEM_ARCHITECTURE.md`
 - Database rules: `docs/database/MONGODB_ARCHITECTURE.md`
 - Source policy: `docs/data-governance/SOURCE_POLICY.md`
-- Current plan/status: `docs/plans/active/PHASE_3_PLAN.md`, `docs/status/PROJECT_STATUS.md`
+- Current plan/status: `docs/plans/active/PHASE_5_PLAN.md`, `docs/status/PROJECT_STATUS.md`
 
 ## Standards and Validation
 
@@ -48,4 +50,4 @@ Do not add Docker, Docker Compose, Dockerfiles, Kubernetes, Testcontainers, paid
 
 ## Definition of Done
 
-Phase 3 work is done when base-model manifests, hardware reports, dataset gates, reproducible splits, manual smoke training, training-run metadata, evaluation, regression gates, model-candidate registration, human approval, tests, and docs are complete without Docker, paid APIs, closed-chat scraping, relational databases, automatic model downloads, or automatic production promotion.
+Phase 4 work is done when local authentication, RBAC, session controls, security events, permissioned APIs, governance approval workflows, separation of duties, manual staging records, rollback metadata, tests, and docs are complete without Docker, paid APIs, closed-chat scraping, relational databases, automatic model downloads, automatic training, or automatic production promotion.

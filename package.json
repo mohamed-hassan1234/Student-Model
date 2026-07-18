@@ -13,6 +13,7 @@
     "api:dev": "uv run uvicorn devmind_api.main:app --host 127.0.0.1 --port 8000",
     "web:dev": "npm --prefix apps/web run dev",
     "worker:dev": "uv run python -m devmind_worker.runner",
+    "auth:bootstrap": "uv run devmind-auth bootstrap-admin",
     "dev": "powershell -ExecutionPolicy Bypass -File scripts/dev.ps1",
     "stop": "powershell -ExecutionPolicy Bypass -File scripts/stop.ps1",
     "backend:format": "uv run ruff format --check .",

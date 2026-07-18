@@ -1,9 +1,11 @@
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from starlette import status
 
+from devmind_api.auth.dependencies import require_permission
+from devmind_api.auth.models import Permission
 from devmind_api.config import Settings, get_settings
 from devmind_api.db import MongoDatabase, get_database
 from devmind_api.exceptions import DevMindError
@@ -31,7 +33,7 @@ class DatasetSplitRequest(BaseModel):
 
 class CreateTrainingRunRequest(BaseModel):
     training_config_id: str
-    creator: str = Field(default="local-admin", min_length=2, max_length=120)
+    creator: str = Field(default="authenticated-user", min_length=2, max_length=120)
 
 
 class BaselineUnavailableRequest(BaseModel):
@@ -51,7 +53,7 @@ class RegisterCandidateRequest(BaseModel):
     training_run_id: str
     baseline_evaluation_id: str
     candidate_evaluation_id: str
-    creator: str = Field(default="local-admin", min_length=2, max_length=120)
+    creator: str = Field(default="authenticated-user", min_length=2, max_length=120)
 
 
 class CompareCandidateRequest(BaseModel):
@@ -60,7 +62,7 @@ class CompareCandidateRequest(BaseModel):
 
 
 class ApprovalRequest(BaseModel):
-    reviewer_id: str = Field(default="local-admin", min_length=2, max_length=120)
+    reviewer_id: str = Field(default="authenticated-user", min_length=2, max_length=120)
     notes: str | None = Field(default=None, max_length=2000)
 
 
@@ -73,23 +75,17 @@ def get_training_orchestrator(
 
 
 TrainingDep = Annotated[Phase3TrainingOrchestrator, Depends(get_training_orchestrator)]
-
-
-async def require_admin_placeholder(
-    x_devmind_admin: Annotated[str | None, Header(alias="x-devmind-admin")] = None,
-) -> None:
-    if x_devmind_admin != "local-admin":
-        raise DevMindError(
-            "Administrative placeholder header x-devmind-admin=local-admin is required",
-            status.HTTP_403_FORBIDDEN,
-        )
-
-
-AdminDep = Annotated[None, Depends(require_admin_placeholder)]
+TrainingConfigureDep = Annotated[Any, Depends(require_permission(Permission.TRAINING_CONFIGURE))]
+TrainingStartDep = Annotated[Any, Depends(require_permission(Permission.TRAINING_START))]
+TrainingCancelDep = Annotated[Any, Depends(require_permission(Permission.TRAINING_CANCEL))]
+EvaluationStartDep = Annotated[Any, Depends(require_permission(Permission.EVALUATIONS_START))]
+CandidateCreateDep = Annotated[Any, Depends(require_permission(Permission.CANDIDATES_CREATE))]
+CandidateReviewDep = Annotated[Any, Depends(require_permission(Permission.CANDIDATES_REVIEW))]
+CandidateStageDep = Annotated[Any, Depends(require_permission(Permission.CANDIDATES_STAGE_APPROVE))]
 
 
 @router.post("/hardware/inspect")
-async def inspect_hardware(orchestrator: TrainingDep, _: AdminDep) -> Any:
+async def inspect_hardware(orchestrator: TrainingDep, _: TrainingConfigureDep) -> Any:
     return await orchestrator.hardware.inspect()
 
 
@@ -103,7 +99,7 @@ async def read_hardware_report(orchestrator: TrainingDep) -> Any:
 
 @router.post("/base-models", status_code=status.HTTP_201_CREATED)
 async def register_base_model_manifest(
-    request: BaseModelManifest, orchestrator: TrainingDep, _: AdminDep
+    request: BaseModelManifest, orchestrator: TrainingDep, _: TrainingConfigureDep
 ) -> Any:
     return await orchestrator.base_models.register(request)
 
@@ -130,7 +126,7 @@ async def read_base_model_manifest(manifest_id: str, database: DatabaseDep) -> A
 
 @router.post("/base-models/{manifest_id}/approve")
 async def approve_base_model_manifest(
-    manifest_id: str, orchestrator: TrainingDep, _: AdminDep
+    manifest_id: str, orchestrator: TrainingDep, _: TrainingConfigureDep
 ) -> Any:
     try:
         return await orchestrator.base_models.approve_or_reject(
@@ -142,7 +138,7 @@ async def approve_base_model_manifest(
 
 @router.post("/base-models/{manifest_id}/reject")
 async def reject_base_model_manifest(
-    manifest_id: str, orchestrator: TrainingDep, _: AdminDep
+    manifest_id: str, orchestrator: TrainingDep, _: TrainingConfigureDep
 ) -> Any:
     try:
         return await orchestrator.base_models.approve_or_reject(
@@ -154,7 +150,7 @@ async def reject_base_model_manifest(
 
 @router.post("/datasets/{dataset_version_id}/validate")
 async def validate_dataset_version(
-    dataset_version_id: str, orchestrator: TrainingDep, _: AdminDep
+    dataset_version_id: str, orchestrator: TrainingDep, _: TrainingConfigureDep
 ) -> Any:
     return await orchestrator.dataset_gate.validate(dataset_version_id)
 
@@ -164,7 +160,7 @@ async def generate_split_manifest(
     dataset_version_id: str,
     request: DatasetSplitRequest,
     orchestrator: TrainingDep,
-    _: AdminDep,
+    _: TrainingConfigureDep,
 ) -> Any:
     try:
         return await orchestrator.splits.create_split(dataset_version_id, request.seed)
@@ -182,17 +178,19 @@ async def read_dataset_validation_report(dataset_version_id: str, database: Data
 
 @router.post("/configs/validate")
 async def validate_training_config(
-    request: Phase3TrainingConfig, orchestrator: TrainingDep, _: AdminDep
+    request: Phase3TrainingConfig, orchestrator: TrainingDep, _: TrainingConfigureDep
 ) -> Any:
     return await orchestrator.configs.validate_and_save(request)
 
 
 @router.post("/runs", status_code=status.HTTP_201_CREATED)
 async def create_training_run(
-    request: CreateTrainingRunRequest, orchestrator: TrainingDep, _: AdminDep
+    request: CreateTrainingRunRequest, orchestrator: TrainingDep, principal: TrainingConfigureDep
 ) -> Any:
     try:
-        return await orchestrator.runs.create_run(request.training_config_id, request.creator)
+        return await orchestrator.runs.create_run(
+            request.training_config_id, principal.user.user_id
+        )
     except TrainingServiceError as exc:
         raise DevMindError(str(exc), status.HTTP_400_BAD_REQUEST) from exc
 
@@ -211,7 +209,7 @@ async def read_training_run(run_id: str, database: DatabaseDep) -> Any:
 
 
 @router.post("/runs/{run_id}/cancel")
-async def cancel_training_run(run_id: str, orchestrator: TrainingDep, _: AdminDep) -> Any:
+async def cancel_training_run(run_id: str, orchestrator: TrainingDep, _: TrainingCancelDep) -> Any:
     try:
         return await orchestrator.runs.cancel(run_id)
     except TrainingServiceError as exc:
@@ -219,7 +217,7 @@ async def cancel_training_run(run_id: str, orchestrator: TrainingDep, _: AdminDe
 
 
 @router.post("/runs/{run_id}/smoke-train")
-async def run_smoke_training(run_id: str, orchestrator: TrainingDep, _: AdminDep) -> Any:
+async def run_smoke_training(run_id: str, orchestrator: TrainingDep, _: TrainingStartDep) -> Any:
     try:
         return await orchestrator.runs.run_smoke_training(run_id)
     except TrainingServiceError as exc:
@@ -244,7 +242,7 @@ async def read_metrics(run_id: str, database: DatabaseDep) -> Any:
 
 @router.post("/evaluations/baseline-unavailable")
 async def record_baseline_unavailable(
-    request: BaselineUnavailableRequest, orchestrator: TrainingDep, _: AdminDep
+    request: BaselineUnavailableRequest, orchestrator: TrainingDep, _: EvaluationStartDep
 ) -> Any:
     return await orchestrator.evaluations.record_baseline_unavailable(
         request.subject_id, request.evaluation_set_version, request.reason
@@ -253,7 +251,7 @@ async def record_baseline_unavailable(
 
 @router.post("/evaluations/candidate")
 async def record_candidate_evaluation(
-    request: CandidateEvaluationRequest, orchestrator: TrainingDep, _: AdminDep
+    request: CandidateEvaluationRequest, orchestrator: TrainingDep, _: EvaluationStartDep
 ) -> Any:
     return await orchestrator.evaluations.record_candidate_mock_evaluation(
         request.candidate_id, request.evaluation_set_version, request.scores
@@ -262,7 +260,7 @@ async def record_candidate_evaluation(
 
 @router.post("/candidates", status_code=status.HTTP_201_CREATED)
 async def register_candidate(
-    request: RegisterCandidateRequest, orchestrator: TrainingDep, _: AdminDep
+    request: RegisterCandidateRequest, orchestrator: TrainingDep, principal: CandidateCreateDep
 ) -> Any:
     try:
         return await orchestrator.candidates.register(
@@ -270,7 +268,7 @@ async def register_candidate(
             training_run_id=request.training_run_id,
             baseline_evaluation_id=request.baseline_evaluation_id,
             candidate_evaluation_id=request.candidate_evaluation_id,
-            creator=request.creator,
+            creator=principal.user.user_id,
         )
     except TrainingServiceError as exc:
         raise DevMindError(str(exc), status.HTTP_400_BAD_REQUEST) from exc
@@ -294,7 +292,7 @@ async def compare_candidate(
     candidate_id: str,
     request: CompareCandidateRequest,
     orchestrator: TrainingDep,
-    _: AdminDep,
+    _: CandidateReviewDep,
 ) -> Any:
     try:
         return await orchestrator.comparisons.compare(
@@ -313,7 +311,9 @@ async def read_regression_report(candidate_id: str, database: DatabaseDep) -> An
 
 
 @router.post("/candidates/{candidate_id}/recommendation")
-async def generate_recommendation(candidate_id: str, orchestrator: TrainingDep, _: AdminDep) -> Any:
+async def generate_recommendation(
+    candidate_id: str, orchestrator: TrainingDep, _: CandidateReviewDep
+) -> Any:
     try:
         return await orchestrator.recommendations.generate_for_candidate(
             orchestrator.training_repository, candidate_id
@@ -324,12 +324,15 @@ async def generate_recommendation(candidate_id: str, orchestrator: TrainingDep, 
 
 @router.post("/candidates/{candidate_id}/approve-for-manual-staging")
 async def approve_for_manual_staging(
-    candidate_id: str, request: ApprovalRequest, orchestrator: TrainingDep, _: AdminDep
+    candidate_id: str,
+    request: ApprovalRequest,
+    orchestrator: TrainingDep,
+    principal: CandidateStageDep,
 ) -> Any:
     try:
         return await orchestrator.approvals.act(
             candidate_id=candidate_id,
-            reviewer_id=request.reviewer_id,
+            reviewer_id=principal.user.user_id,
             action=ModelApprovalAction.APPROVE_FOR_MANUAL_STAGING,
             notes=request.notes,
         )
@@ -339,12 +342,15 @@ async def approve_for_manual_staging(
 
 @router.post("/candidates/{candidate_id}/reject")
 async def reject_candidate(
-    candidate_id: str, request: ApprovalRequest, orchestrator: TrainingDep, _: AdminDep
+    candidate_id: str,
+    request: ApprovalRequest,
+    orchestrator: TrainingDep,
+    principal: CandidateReviewDep,
 ) -> Any:
     try:
         return await orchestrator.approvals.act(
             candidate_id=candidate_id,
-            reviewer_id=request.reviewer_id,
+            reviewer_id=principal.user.user_id,
             action=ModelApprovalAction.REJECT,
             notes=request.notes,
         )
@@ -354,12 +360,15 @@ async def reject_candidate(
 
 @router.post("/candidates/{candidate_id}/request-more-evaluation")
 async def request_more_evaluation(
-    candidate_id: str, request: ApprovalRequest, orchestrator: TrainingDep, _: AdminDep
+    candidate_id: str,
+    request: ApprovalRequest,
+    orchestrator: TrainingDep,
+    principal: CandidateReviewDep,
 ) -> Any:
     try:
         return await orchestrator.approvals.act(
             candidate_id=candidate_id,
-            reviewer_id=request.reviewer_id,
+            reviewer_id=principal.user.user_id,
             action=ModelApprovalAction.REQUEST_MORE_EVALUATION,
             notes=request.notes,
         )
@@ -373,5 +382,7 @@ async def read_candidate_audit(candidate_id: str, database: DatabaseDep) -> Any:
 
 
 @router.post("/candidates/{candidate_id}/adapter-load-check")
-async def check_adapter_load(candidate_id: str, orchestrator: TrainingDep, _: AdminDep) -> Any:
+async def check_adapter_load(
+    candidate_id: str, orchestrator: TrainingDep, _: CandidateReviewDep
+) -> Any:
     return await orchestrator.adapter_loader.check(candidate_id)

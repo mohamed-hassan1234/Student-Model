@@ -19,7 +19,9 @@ DEFAULT_API = "http://127.0.0.1:8000/api/v1/technology/training"
 def main() -> int:
     parser = argparse.ArgumentParser(description="DevMind Phase 3 manual training CLI")
     parser.add_argument("--api-base", default=DEFAULT_API)
-    parser.add_argument("--admin-token", default="local-admin")
+    parser.add_argument(
+        "--access-token", required=True, help="Short-lived bearer token from /auth/login"
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("inspect-hardware")
@@ -73,7 +75,7 @@ def main() -> int:
     register_candidate.add_argument("--training-run-id", required=True)
     register_candidate.add_argument("--baseline-evaluation-id", required=True)
     register_candidate.add_argument("--candidate-evaluation-id", required=True)
-    register_candidate.add_argument("--creator", default="local-admin")
+    register_candidate.add_argument("--creator", default="authenticated-user")
 
     recommendation = sub.add_parser("generate-deployment-recommendation")
     recommendation.add_argument("--candidate-id", required=True)
@@ -87,22 +89,26 @@ def main() -> int:
 
 def _dispatch(args: argparse.Namespace) -> int:
     base = args.api_base.rstrip("/")
-    admin = {"x-devmind-admin": args.admin_token}
+    auth_headers = {"authorization": f"Bearer {args.access_token}"}
     if args.command == "inspect-hardware":
-        _print(_request("POST", f"{base}/hardware/inspect", headers=admin))
+        _print(_request("POST", f"{base}/hardware/inspect", headers=auth_headers))
     elif args.command == "validate-base-model-manifest":
         _print(_request("POST", f"{base}/base-models/validate", _read_json(args.manifest)))
     elif args.command == "register-base-model-manifest":
-        _print(_request("POST", f"{base}/base-models", _read_json(args.manifest), admin))
+        _print(_request("POST", f"{base}/base-models", _read_json(args.manifest), auth_headers))
     elif args.command == "validate-dataset":
-        _print(_request("POST", f"{base}/datasets/{args.dataset_version}/validate", headers=admin))
+        _print(
+            _request(
+                "POST", f"{base}/datasets/{args.dataset_version}/validate", headers=auth_headers
+            )
+        )
     elif args.command == "create-dataset-splits":
         _print(
             _request(
                 "POST",
                 f"{base}/datasets/{args.dataset_version}/splits",
                 {"seed": args.seed},
-                admin,
+                auth_headers,
             )
         )
     elif args.command == "run-baseline-evaluation":
@@ -115,13 +121,17 @@ def _dispatch(args: argparse.Namespace) -> int:
                     "evaluation_set_version": args.evaluation_set_version,
                     "reason": args.unavailable_reason,
                 },
-                admin,
+                auth_headers,
             )
         )
     elif args.command == "estimate-training-resources":
-        _print(_request("POST", f"{base}/datasets/{args.dataset_version}/validate", headers=admin))
+        _print(
+            _request(
+                "POST", f"{base}/datasets/{args.dataset_version}/validate", headers=auth_headers
+            )
+        )
     elif args.command == "run-smoke-training":
-        _print(_request("POST", f"{base}/runs/{args.run_id}/smoke-train", headers=admin))
+        _print(_request("POST", f"{base}/runs/{args.run_id}/smoke-train", headers=auth_headers))
     elif args.command == "start-lora-training":
         if not args.acknowledge_manual:
             raise SystemExit("--acknowledge-manual is required for real LoRA training")
@@ -148,7 +158,7 @@ def _dispatch(args: argparse.Namespace) -> int:
                     "candidate_id": args.candidate_id,
                     "evaluation_set_version": args.evaluation_set_version,
                 },
-                admin,
+                auth_headers,
             )
         )
     elif args.command == "compare-candidate":
@@ -160,7 +170,7 @@ def _dispatch(args: argparse.Namespace) -> int:
                     "baseline_evaluation_id": args.baseline_evaluation_id,
                     "candidate_evaluation_id": args.candidate_evaluation_id,
                 },
-                admin,
+                auth_headers,
             )
         )
     elif args.command == "register-model-candidate":
@@ -175,7 +185,7 @@ def _dispatch(args: argparse.Namespace) -> int:
                     "candidate_evaluation_id": args.candidate_evaluation_id,
                     "creator": args.creator,
                 },
-                admin,
+                auth_headers,
             )
         )
     elif args.command == "generate-deployment-recommendation":
@@ -183,7 +193,7 @@ def _dispatch(args: argparse.Namespace) -> int:
             _request(
                 "POST",
                 f"{base}/candidates/{args.candidate_id}/recommendation",
-                headers=admin,
+                headers=auth_headers,
             )
         )
     elif args.command == "archive-failed-experiment":

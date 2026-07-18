@@ -10,6 +10,8 @@ from devmind_api.db import MongoManager
 from devmind_api.exceptions import register_exception_handlers
 from devmind_api.logging import configure_logging
 from devmind_api.middleware import CorrelationIdMiddleware, SecurityHeadersMiddleware
+from devmind_api.routes.auth import router as auth_router
+from devmind_api.routes.governance import router as governance_router
 from devmind_api.routes.health import router as health_router
 from devmind_api.routes.learning import router as learning_router
 from devmind_api.routes.technology import router as technology_router
@@ -40,16 +42,18 @@ def create_app(app_settings: Settings | None = None) -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=active_settings.cors_origins,
-        allow_credentials=False,
+        allow_credentials=True,
         allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["content-type", "authorization", "x-correlation-id", "x-devmind-admin"],
+        allow_headers=["content-type", "authorization", "x-correlation-id", "x-csrf-token"],
     )
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(CorrelationIdMiddleware)
     app.include_router(health_router, prefix="/api/v1")
+    app.include_router(auth_router, prefix="/api/v1")
     app.include_router(technology_router, prefix="/api/v1")
     app.include_router(learning_router, prefix="/api/v1")
     app.include_router(training_router, prefix="/api/v1")
+    app.include_router(governance_router, prefix="/api/v1")
     register_exception_handlers(app)
     return app
 

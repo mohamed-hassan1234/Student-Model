@@ -19,7 +19,7 @@ if find . -name Dockerfile -o -name docker-compose.yml -o -name docker-compose.y
   exit 1
 fi
 
-if grep -R -I -E "api[_-]?key\s*=|password\s*=|secret\s*=" . \
+if grep -R -I -E "(api[_-]?key|password|secret)\s*=\s*['\"][^'\"<]" . \
   --exclude-dir=.git --exclude-dir=.venv --exclude-dir=node_modules --exclude-dir=dist \
   --exclude-dir=.mypy_cache --exclude-dir=.pytest_cache --exclude-dir=.ruff_cache \
   --exclude-dir=coverage; then

@@ -14,6 +14,9 @@ dependencies = [
   "python-multipart>=0.0.12",
   "python-json-logger>=2.0.7",
   "uvicorn[standard]>=0.30.0",
+  "argon2-cffi>=25.1.0",
+  "pyjwt>=2.13.0",
+  "email-validator>=2.3.0",
 ]
 
 [dependency-groups]
@@ -29,6 +32,7 @@ dev = [
 devmind-check-environment = "scripts.check_environment:main"
 devmind-worker = "devmind_worker.runner:main"
 devmind-training = "scripts.training_cli:main"
+devmind-auth = "scripts.auth_cli:main"
 
 [build-system]
 requires = ["setuptools>=72.0"]

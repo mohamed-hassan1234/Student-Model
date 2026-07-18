@@ -1,0 +1,25 @@
+{
+  "component": "phase_4_auth_governance_staging",
+  "version": 1,
+  "description": "Authentication, authorization, governance approvals, and manual model staging controls.",
+  "collections": [
+    "users",
+    "roles",
+    "permissions",
+    "role_permissions",
+    "user_roles",
+    "auth_sessions",
+    "refresh_token_families",
+    "login_attempts",
+    "password_reset_events",
+    "security_events",
+    "governance_policies",
+    "approval_workflows",
+    "approval_requests",
+    "approval_decisions",
+    "staging_requests",
+    "staging_events",
+    "production_model_assignments",
+    "system_audit_events"
+  ]
+}

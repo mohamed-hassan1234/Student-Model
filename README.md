@@ -1,8 +1,8 @@
 # DevMind AI
 
-DevMind AI is a local-first, low-cost, modular artificial intelligence learning platform. This repository currently contains Phase 3: Controlled LoRA Training, Evaluation, and Model Candidate Management for Technology Student v0.1, built on the approved-source RAG and verified dataset foundations.
+DevMind AI is a local-first, low-cost, modular artificial intelligence learning platform. This repository currently contains Phase 4: Authentication, Authorization, Governance Enforcement, and Manual Model Staging Controls for Technology Student v0.1.
 
-Phase 3 adds controlled manual training/evaluation foundations. It does not automatically download models, train, modify, promote, replace, or deploy model weights.
+Phase 4 adds local user authentication, role-based permissions, governance approval checks, and manual staging records. It does not automatically download models, train, modify, promote, replace, or deploy model weights.
 
 ## Stack
 
@@ -13,6 +13,7 @@ Phase 3 adds controlled manual training/evaluation foundations. It does not auto
 - Phase 1: approved-source registry, parsers, chunking, mock/local embeddings, vector retrieval boundary, grounded answers with citations
 - Phase 2: curriculum coverage, knowledge gaps, bounded learning cycles, generated questions, verified candidate answers, mandatory human review, immutable dataset versions, reproducible JSONL export, training-prep validation, and model-candidate records
 - Phase 3: base-model manifests, hardware inspection, dataset entry gate, split manifests, manual smoke training, training-run/artifact metadata, candidate evaluation, regression gates, and manual staging recommendations
+- Phase 4: Argon2 password hashing, JWT sessions, permissioned APIs, security events, governance approval workflow, separation of duties, and manual staging/rollback metadata
 
 ## Quick Start
 
@@ -32,7 +33,13 @@ npm --prefix apps/web install
 uv run python scripts/bootstrap_mongodb.py
 ```
 
-5. Start local development:
+5. Create the first local super administrator:
+
+```powershell
+uv run devmind-auth bootstrap-admin --email <admin-email> --username <admin-username> --password "<strong-password>"
+```
+
+6. Start local development:
 
 ```powershell
 scripts/dev.ps1
@@ -58,9 +65,12 @@ Unix-like shells can use:
 - Phase 2 review queue: `GET /api/v1/technology/learning/reviews`
 - Validate training config: `POST /api/v1/technology/learning/training-configs/validate`
 - Export approved dataset version: `POST /api/v1/technology/learning/dataset-versions/{dataset_version_id}/export`
-- Inspect training hardware: `uv run devmind-training inspect-hardware`
-- Validate base-model manifest: `uv run devmind-training validate-base-model-manifest --manifest manifest.json`
-- Run smoke training for an approved run: `uv run devmind-training run-smoke-training --run-id trun_...`
+- Auth API: `POST /api/v1/auth/login`
+- Governance approvals: `GET /api/v1/governance/approval-requests`
+- Manual staging records: `GET /api/v1/governance/staging-requests`
+- Inspect training hardware: `uv run devmind-training --access-token <token> inspect-hardware`
+- Validate base-model manifest: `uv run devmind-training --access-token <token> validate-base-model-manifest --manifest manifest.json`
+- Run smoke training for an approved run: `uv run devmind-training --access-token <token> run-smoke-training --run-id trun_...`
 
 ## License and Data
 

@@ -39,7 +39,7 @@ export function LearningCyclesPage() {
       </header>
       <div className="rounded-md border border-slate-200 bg-white p-4">
         <h3 className="font-semibold text-ink">Create cycle</h3>
-        <p className="mt-1 text-sm text-graphite">Use the API with admin placeholder authorization to create a planned cycle. Provider calls remain bounded by configuration.</p>
+        <p className="mt-1 text-sm text-graphite">Use an authenticated account with training configuration permission to create a planned cycle. Provider calls remain bounded by configuration.</p>
       </div>
       {loading ? <p aria-label="Loading learning cycles" className="text-sm text-graphite">Loading learning cycles...</p> : null}
       {error ? <p role="alert" className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}

@@ -115,8 +115,8 @@ function installFetchMock() {
           candidate_id: "cand_1",
           question_id: "q_1",
           status: "approved",
-          reviewer_id: "local-admin",
-          reviewer_note: "Approved in local admin mode.",
+          reviewer_id: "reviewer_1",
+          reviewer_note: "Approved by authenticated reviewer.",
         });
       }
       if (url.includes("/technology/learning/reviews")) {

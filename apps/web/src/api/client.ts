@@ -195,16 +195,91 @@ export type StudentAnswer = {
   }>;
 };
 
+export type PublicUser = {
+  user_id: string;
+  email: string;
+  username: string;
+  display_name: string;
+  active: boolean;
+  roles: string[];
+  permissions: string[];
+};
+
+export type LoginResponse = {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  csrf_token: string;
+  session_id: string;
+  user: PublicUser;
+};
+
+export type ApprovalRequest = {
+  approval_request_id: string;
+  candidate_id: string;
+  requested_by: string;
+  status: string;
+  reason: string;
+};
+
+export type StagingRequest = {
+  staging_request_id: string;
+  candidate_id: string;
+  approval_request_id: string;
+  requested_by: string;
+  status: string;
+  staging_environment: string;
+  adapter_hash: string;
+};
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000";
+let accessToken: string | null = null;
+
+export function setAccessToken(token: string | null): void {
+  accessToken = token;
+}
+
+function authHeaders(): Record<string, string> {
+  return accessToken ? { authorization: `Bearer ${accessToken}` } : {};
+}
 
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, {
-    headers: { accept: "application/json" },
+    credentials: "include",
+    headers: { accept: "application/json", ...authHeaders() },
   });
   if (!response.ok) {
     throw new Error(`Request failed with status ${response.status}`);
   }
   return response.json() as Promise<T>;
+}
+
+export async function login(email: string, password: string): Promise<LoginResponse> {
+  const response = await fetch(`${apiBaseUrl}/api/v1/auth/login`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "content-type": "application/json", accept: "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+  const result = (await response.json()) as LoginResponse;
+  setAccessToken(result.access_token);
+  return result;
+}
+
+export async function fetchMe(): Promise<PublicUser> {
+  return getJson<PublicUser>("/api/v1/auth/me");
+}
+
+export async function logout(): Promise<void> {
+  await fetch(`${apiBaseUrl}/api/v1/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+    headers: { accept: "application/json", ...authHeaders() },
+  });
+  setAccessToken(null);
 }
 
 export async function fetchSystemStatus(): Promise<SystemStatus> {
@@ -247,17 +322,28 @@ export async function fetchPendingReviews(): Promise<ReviewItem[]> {
 export async function approveReview(reviewId: string): Promise<ReviewItem> {
   const response = await fetch(`${apiBaseUrl}/api/v1/technology/learning/reviews/${reviewId}/approve`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "content-type": "application/json",
       accept: "application/json",
-      "x-devmind-admin": "local-admin",
+      ...authHeaders(),
     },
-    body: JSON.stringify({ reviewer_id: "local-admin", note: "Approved in local admin mode." }),
+    body: JSON.stringify({ note: "Approved by authenticated reviewer." }),
   });
   if (!response.ok) {
     throw new Error(`Request failed with status ${response.status}`);
   }
   return response.json() as Promise<ReviewItem>;
+}
+
+export async function fetchApprovalRequests(): Promise<ApprovalRequest[]> {
+  const result = await getJson<{ approval_requests: ApprovalRequest[] }>("/api/v1/governance/approval-requests");
+  return result.approval_requests;
+}
+
+export async function fetchStagingRequests(): Promise<StagingRequest[]> {
+  const result = await getJson<{ staging_requests: StagingRequest[] }>("/api/v1/governance/staging-requests");
+  return result.staging_requests;
 }
 
 export async function fetchDatasetRegistry(): Promise<{

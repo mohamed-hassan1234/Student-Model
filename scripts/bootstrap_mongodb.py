@@ -11,6 +11,7 @@ SYSTEM_SCHEMA_VERSION = 1
 PHASE_1_SCHEMA_VERSION = 1
 PHASE_2_SCHEMA_VERSION = 1
 PHASE_3_SCHEMA_VERSION = 1
+PHASE_4_SCHEMA_VERSION = 1
 
 PHASE_2_COLLECTIONS = {
     "curricula": [("student_id", ASCENDING), ("version", ASCENDING)],
@@ -48,6 +49,26 @@ PHASE_3_COLLECTIONS = {
     "candidate_comparisons": [("candidate_id", ASCENDING), ("created_at", ASCENDING)],
     "model_approvals": [("candidate_id", ASCENDING), ("created_at", ASCENDING)],
     "adapter_load_checks": [("candidate_id", ASCENDING), ("checked_at", ASCENDING)],
+}
+
+PHASE_4_COLLECTIONS = {
+    "users": [("active", ASCENDING), ("created_at", ASCENDING)],
+    "roles": [("role", ASCENDING)],
+    "permissions": [("permission", ASCENDING)],
+    "role_permissions": [("role", ASCENDING), ("permission", ASCENDING)],
+    "user_roles": [("user_id", ASCENDING), ("role", ASCENDING)],
+    "auth_sessions": [("user_id", ASCENDING), ("revoked", ASCENDING)],
+    "refresh_token_families": [("user_id", ASCENDING), ("revoked", ASCENDING)],
+    "login_attempts": [("normalized_email", ASCENDING), ("created_at", -1)],
+    "password_reset_events": [("user_id", ASCENDING), ("created_at", -1)],
+    "security_events": [("severity", ASCENDING), ("created_at", -1)],
+    "governance_policies": [("policy_id", ASCENDING)],
+    "approval_workflows": [("status", ASCENDING), ("created_at", -1)],
+    "approval_requests": [("candidate_id", ASCENDING), ("status", ASCENDING)],
+    "approval_decisions": [("approval_request_id", ASCENDING), ("decision_type", ASCENDING)],
+    "staging_requests": [("candidate_id", ASCENDING), ("status", ASCENDING)],
+    "staging_events": [("staging_request_id", ASCENDING), ("created_at", ASCENDING)],
+    "production_model_assignments": [("environment", ASCENDING), ("active", ASCENDING)],
 }
 
 
@@ -139,6 +160,8 @@ async def create_indexes(database: Any) -> None:
         await database[collection_name].create_index(keys, name=f"{collection_name}_primary")
     for collection_name, keys in PHASE_3_COLLECTIONS.items():
         await database[collection_name].create_index(keys, name=f"{collection_name}_primary")
+    for collection_name, keys in PHASE_4_COLLECTIONS.items():
+        await database[collection_name].create_index(keys, name=f"{collection_name}_primary")
     await database["curriculum_topics"].create_index(
         [("topic_id", ASCENDING)], unique=True, name="uniq_topic_id"
     )
@@ -164,6 +187,12 @@ async def create_indexes(database: Any) -> None:
     await database["model_evaluations"].create_index(
         [("subject_id", ASCENDING), ("created_at", ASCENDING)],
         name="model_evaluations_subject",
+    )
+    await database["users"].create_index(
+        [("normalized_email", ASCENDING)], unique=True, name="uniq_user_normalized_email"
+    )
+    await database["auth_sessions"].create_index(
+        [("refresh_token_hash", ASCENDING)], unique=True, name="uniq_refresh_token_hash"
     )
 
 
@@ -296,6 +325,8 @@ async def create_validators(database: Any) -> None:
         validators[collection_name] = {"$jsonSchema": {"bsonType": "object", "required": ["_id"]}}
     for collection_name in PHASE_3_COLLECTIONS:
         validators[collection_name] = {"$jsonSchema": {"bsonType": "object", "required": ["_id"]}}
+    for collection_name in PHASE_4_COLLECTIONS:
+        validators[collection_name] = {"$jsonSchema": {"bsonType": "object", "required": ["_id"]}}
     existing = await database.list_collection_names()
     for collection_name, validator in validators.items():
         if collection_name not in existing:
@@ -350,6 +381,17 @@ async def record_schema_version(database: Any) -> None:
             "$set": {
                 "component": "phase_3_controlled_lora_training",
                 "version": PHASE_3_SCHEMA_VERSION,
+                "updated_at": utc_now(),
+            }
+        },
+        upsert=True,
+    )
+    await database["system_schema_versions"].update_one(
+        {"component": "phase_4_auth_governance_staging"},
+        {
+            "$set": {
+                "component": "phase_4_auth_governance_staging",
+                "version": PHASE_4_SCHEMA_VERSION,
                 "updated_at": utc_now(),
             }
         },

@@ -36,7 +36,7 @@ class RegisterSourceRequest(BaseModel):
     retrieval_use_permission: PermissionStatus = PermissionStatus.ALLOWED
     training_use_permission: PermissionStatus = PermissionStatus.DISALLOWED
     human_approval_status: ReviewStatus = ReviewStatus.PENDING
-    created_by: str = Field(default="local-admin", min_length=2, max_length=120)
+    created_by: str = Field(default="authenticated-user", min_length=2, max_length=120)
 
 
 class RegisterFileSourceRequest(BaseModel):
@@ -53,7 +53,7 @@ class RegisterFileSourceRequest(BaseModel):
     retrieval_use_permission: PermissionStatus = PermissionStatus.ALLOWED
     training_use_permission: PermissionStatus = PermissionStatus.DISALLOWED
     human_approval_status: ReviewStatus = ReviewStatus.APPROVED
-    created_by: str = Field(default="local-admin", min_length=2, max_length=120)
+    created_by: str = Field(default="authenticated-user", min_length=2, max_length=120)
 
 
 class SourceUpdateRequest(BaseModel):
@@ -68,7 +68,7 @@ class SourceUpdateRequest(BaseModel):
 
 class SourceReviewRequest(BaseModel):
     approved: bool
-    reviewer: str = Field(default="local-admin", min_length=2, max_length=120)
+    reviewer: str = Field(default="authenticated-user", min_length=2, max_length=120)
     notes: str | None = Field(default=None, max_length=1000)
 
 

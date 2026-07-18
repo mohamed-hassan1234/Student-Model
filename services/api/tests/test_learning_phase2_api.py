@@ -4,7 +4,7 @@ from httpx import AsyncClient
 pytestmark = pytest.mark.anyio
 
 
-async def test_learning_admin_placeholder_blocks_mutations(client: AsyncClient) -> None:
+async def test_learning_auth_blocks_mutations(client: AsyncClient) -> None:
     response = await client.post(
         "/api/v1/technology/learning/cycles",
         json={
@@ -15,15 +15,17 @@ async def test_learning_admin_placeholder_blocks_mutations(client: AsyncClient) 
         },
     )
 
-    assert response.status_code == 403
-    assert "x-devmind-admin" in response.json()["error"]["message"]
+    assert response.status_code == 401
+    assert "Authentication is required" in response.json()["error"]["message"]
 
 
-async def test_learning_curriculum_and_cycle_api(client: AsyncClient) -> None:
+async def test_learning_curriculum_and_cycle_api(
+    client: AsyncClient, admin_headers: dict[str, str]
+) -> None:
     curriculum = await client.get("/api/v1/technology/learning/curriculum")
     cycle = await client.post(
         "/api/v1/technology/learning/cycles",
-        headers={"x-devmind-admin": "local-admin"},
+        headers=admin_headers,
         json={
             "domain": "Frontend",
             "topic": "React",

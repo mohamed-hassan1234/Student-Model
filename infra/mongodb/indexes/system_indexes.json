@@ -152,5 +152,66 @@
   ],
   "adapter_load_checks": [
     { "keys": [["candidate_id", 1], ["checked_at", 1]], "name": "adapter_load_checks_primary" }
+  ],
+  "users": [
+    { "keys": [["normalized_email", 1]], "unique": true, "name": "uniq_user_normalized_email" },
+    { "keys": [["active", 1], ["created_at", 1]], "name": "users_active_created" }
+  ],
+  "roles": [
+    { "keys": [["role", 1]], "unique": true, "name": "uniq_role" }
+  ],
+  "permissions": [
+    { "keys": [["permission", 1]], "unique": true, "name": "uniq_permission" }
+  ],
+  "role_permissions": [
+    { "keys": [["role", 1], ["permission", 1]], "unique": true, "name": "uniq_role_permission" }
+  ],
+  "user_roles": [
+    { "keys": [["user_id", 1], ["role", 1]], "unique": true, "name": "uniq_user_role" },
+    { "keys": [["role", 1], ["removed", 1]], "name": "user_roles_role_removed" }
+  ],
+  "auth_sessions": [
+    { "keys": [["user_id", 1], ["revoked", 1]], "name": "auth_sessions_user_revoked" },
+    { "keys": [["refresh_token_hash", 1]], "unique": true, "name": "uniq_refresh_token_hash" },
+    { "keys": [["expires_at", 1]], "name": "auth_sessions_expires_at" }
+  ],
+  "refresh_token_families": [
+    { "keys": [["user_id", 1], ["revoked", 1]], "name": "refresh_families_user_revoked" }
+  ],
+  "login_attempts": [
+    { "keys": [["normalized_email", 1], ["created_at", -1]], "name": "login_attempts_email_created" },
+    { "keys": [["success", 1], ["created_at", -1]], "name": "login_attempts_success_created" }
+  ],
+  "password_reset_events": [
+    { "keys": [["user_id", 1], ["created_at", -1]], "name": "password_reset_events_user_created" }
+  ],
+  "security_events": [
+    { "keys": [["severity", 1], ["created_at", -1]], "name": "security_events_severity_created" },
+    { "keys": [["event_type", 1], ["created_at", -1]], "name": "security_events_type_created" }
+  ],
+  "governance_policies": [
+    { "keys": [["policy_id", 1]], "unique": true, "name": "uniq_policy_id" }
+  ],
+  "approval_requests": [
+    { "keys": [["candidate_id", 1], ["status", 1]], "name": "approval_requests_candidate_status" },
+    { "keys": [["requested_by", 1], ["created_at", -1]], "name": "approval_requests_requester_created" }
+  ],
+  "approval_workflows": [
+    { "keys": [["status", 1], ["created_at", -1]], "name": "approval_workflows_status_created" }
+  ],
+  "approval_decisions": [
+    { "keys": [["approval_request_id", 1], ["decision_type", 1]], "name": "approval_decisions_request_type" },
+    { "keys": [["reviewer_id", 1], ["created_at", -1]], "name": "approval_decisions_reviewer_created" }
+  ],
+  "staging_requests": [
+    { "keys": [["candidate_id", 1], ["status", 1]], "name": "staging_requests_candidate_status" },
+    { "keys": [["approval_request_id", 1]], "name": "staging_requests_approval" }
+  ],
+  "staging_events": [
+    { "keys": [["staging_request_id", 1], ["created_at", 1]], "name": "staging_events_request_created" }
+  ],
+  "production_model_assignments": [
+    { "keys": [["environment", 1], ["active", 1]], "name": "model_assignments_environment_active" },
+    { "keys": [["candidate_id", 1]], "name": "model_assignments_candidate" }
   ]
 }

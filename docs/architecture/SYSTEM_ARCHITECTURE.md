@@ -2,11 +2,11 @@
 
 ## React Frontend
 
-`apps/web` is a React, TypeScript, Vite, and Tailwind CSS app. It exposes system status, sources, Technology Student chat, curriculum pages, learning cycles, review queue, dataset registry, Phase 3 training administration, and model-candidate registry views.
+`apps/web` is a React, TypeScript, Vite, and Tailwind CSS app. It exposes system status, authentication, sources, Technology Student chat, curriculum pages, learning cycles, review queue, dataset registry, Phase 3 training administration, model-candidate registry, governance approvals, and manual staging views.
 
 ## FastAPI API
 
-`services/api` contains the FastAPI service. It provides versioned routes under `/api/v1`, OpenAPI metadata, structured logging, request correlation IDs, central exception handling, environment-based configuration, CORS, basic security headers, MongoDB readiness checks, and Technology Student endpoints under `/api/v1/technology`.
+`services/api` contains the FastAPI service. It provides versioned routes under `/api/v1`, OpenAPI metadata, structured logging, request correlation IDs, central exception handling, environment-based configuration, CORS, basic security headers, MongoDB readiness checks, authenticated administrative endpoints, and Technology Student endpoints under `/api/v1/technology`.
 
 ## MongoDB Database
 
@@ -22,6 +22,8 @@ MongoDB is the primary database. The API uses PyMongo Async API through a connec
 - Knowledge: source-grounded chunk and embedding retrieval.
 - Learning: Phase 2 curriculum coverage, gap detection, bounded generation, verification, review, dataset-versioning, export, training-prep validation, and model-candidate metadata.
 - Training: Phase 3 base-model manifests, hardware reports, dataset gates, split manifests, training-run metadata, smoke training, evaluation, regression, recommendation, approvals, and adapter checks.
+- Authentication: Phase 4 local users, Argon2 password hashing, JWT access/refresh tokens, session revocation, role permissions, and security events.
+- Governance: Phase 4 approval policies, approval requests, independent model/security decisions, manual staging requests, staging events, and rollback metadata.
 - Router: reserved for future routing prototypes; no final router exists.
 - Model gateway: contains provider contracts and a deterministic mock provider.
 
@@ -43,11 +45,11 @@ The Teacher AI will eventually coordinate tools and specialist models through on
 
 ## Security Boundaries
 
-Secrets are environment-only. Readiness does not expose credentials. File upload workflows, arbitrary code execution, automatic model promotion, hidden data collection, and unauthorized scraping are prohibited.
+Secrets are environment-only. Readiness does not expose credentials. Administrative mutation endpoints require bearer authentication and explicit permissions. File upload workflows, arbitrary code execution, automatic model promotion, hidden data collection, and unauthorized scraping are prohibited.
 
 ## Data Flow
 
-Frontend calls API status, source, Technology Student, Phase 2 learning, and Phase 3 training endpoints. API checks local process/configuration and MongoDB ping. Worker may claim jobs from MongoDB when explicitly enabled. Model gateway defaults to deterministic mock responses and can be configured for approved local HTTP providers.
+Frontend calls API status, auth, source, Technology Student, Phase 2 learning, Phase 3 training, and Phase 4 governance endpoints. API checks local process/configuration and MongoDB ping. Worker may claim jobs from MongoDB when explicitly enabled. Model gateway defaults to deterministic mock responses and can be configured for approved local HTTP providers.
 
 ## Process Boundaries
 
@@ -63,3 +65,7 @@ Phase 2 adds `learning_models`, `learning_repositories`, `learning_services`, an
 The layer includes curriculum planning, source coverage analysis, knowledge-gap detection, bounded learning cycles, deterministic question generation, mock teacher candidate-answer generation, evidence retrieval, verification signals, mandatory human review, dataset candidates, immutable dataset versions, JSONL export, frozen evaluation-set metadata, training-configuration validation, model-candidate registration, deployment recommendations, and rollback metadata.
 
 Generated examples do not become training-ready without human approval. Training does not start automatically, and deployment recommendations do not deploy a model.
+
+## Phase 4 Governance Layer
+
+Phase 4 adds `auth` and `governance` modules plus `/api/v1/auth` and `/api/v1/governance` routes. Sensitive source, learning, training, candidate, and staging routes use permission dependencies. Manual staging records are metadata-only and do not change production model configuration.

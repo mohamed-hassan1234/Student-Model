@@ -17,9 +17,10 @@ async def test_capabilities_endpoint(client: AsyncClient) -> None:
     assert body["docker_required"] is False
 
 
-async def test_register_source_endpoint(client: AsyncClient) -> None:
+async def test_register_source_endpoint(client: AsyncClient, admin_headers: dict[str, str]) -> None:
     response = await client.post(
         "/api/v1/technology/sources",
+        headers=admin_headers,
         json={
             "name": "MDN HTML",
             "description": "Approved HTML docs",
@@ -32,7 +33,7 @@ async def test_register_source_endpoint(client: AsyncClient) -> None:
             "retrieval_use_permission": "allowed",
             "training_use_permission": "disallowed",
             "human_approval_status": "approved",
-            "created_by": "test",
+            "created_by": "test-admin",
         },
     )
 

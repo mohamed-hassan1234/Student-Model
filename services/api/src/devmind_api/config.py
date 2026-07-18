@@ -1,7 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -58,6 +58,23 @@ class Settings(BaseSettings):
     )
     training_allow_remote_code: bool = Field(default=False, alias="TRAINING_ALLOW_REMOTE_CODE")
     training_default_seed: int = Field(default=7, ge=0, alias="TRAINING_DEFAULT_SEED")
+    auth_jwt_secret: str | None = Field(default=None, alias="AUTH_JWT_SECRET")
+    auth_jwt_issuer: str = Field(default="devmind-ai-local", alias="AUTH_JWT_ISSUER")
+    auth_jwt_audience: str = Field(default="devmind-ai-api", alias="AUTH_JWT_AUDIENCE")
+    auth_access_token_minutes: int = Field(
+        default=15, ge=1, le=120, alias="AUTH_ACCESS_TOKEN_MINUTES"
+    )
+    auth_refresh_token_minutes: int = Field(
+        default=10080, ge=5, le=43200, alias="AUTH_REFRESH_TOKEN_MINUTES"
+    )
+    auth_cookie_secure: bool = Field(default=False, alias="AUTH_COOKIE_SECURE")
+    auth_failed_login_threshold: int = Field(
+        default=5, ge=1, le=20, alias="AUTH_FAILED_LOGIN_THRESHOLD"
+    )
+    auth_lockout_minutes: int = Field(default=15, ge=1, le=1440, alias="AUTH_LOCKOUT_MINUTES")
+    auth_strict_governance_enabled: bool = Field(
+        default=True, alias="AUTH_STRICT_GOVERNANCE_ENABLED"
+    )
     ingestion_chunk_size: int = Field(default=1200, ge=200, le=8000, alias="INGESTION_CHUNK_SIZE")
     ingestion_chunk_overlap: int = Field(
         default=120, ge=0, le=2000, alias="INGESTION_CHUNK_OVERLAP"
@@ -94,6 +111,14 @@ class Settings(BaseSettings):
         if value < 0:
             raise ValueError("Chunk overlap must be non-negative")
         return value
+
+    @model_validator(mode="after")
+    def validate_auth_browser_defaults(self) -> "Settings":
+        if "*" in self.cors_origins:
+            raise ValueError("Wildcard CORS origins are not allowed with credentialed auth")
+        if self.app_env.lower() in {"production", "prod"} and not self.auth_cookie_secure:
+            raise ValueError("Secure authentication cookies are required in production")
+        return self
 
     def redacted(self) -> dict[str, object]:
         data = self.model_dump(mode="json")

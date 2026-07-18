@@ -242,7 +242,7 @@ def _manifest(
         minimum_recommended_hardware={"ram_gb": 8},
         human_license_review_status=approval,
         approval_status=approval,
-        created_by="local-admin",
+        created_by="test-admin",
         created_at=now,
         updated_at=now,
     )

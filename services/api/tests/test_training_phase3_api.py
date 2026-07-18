@@ -6,14 +6,16 @@ from devmind_shared.time import utc_now
 pytestmark = pytest.mark.anyio
 
 
-async def test_training_admin_placeholder_blocks_mutations(client: AsyncClient) -> None:
+async def test_training_auth_blocks_mutations(client: AsyncClient) -> None:
     response = await client.post("/api/v1/technology/training/hardware/inspect")
 
-    assert response.status_code == 403
-    assert "x-devmind-admin" in response.json()["error"]["message"]
+    assert response.status_code == 401
+    assert "Authentication is required" in response.json()["error"]["message"]
 
 
-async def test_training_hardware_and_base_model_api(client: AsyncClient) -> None:
+async def test_training_hardware_and_base_model_api(
+    client: AsyncClient, admin_headers: dict[str, str]
+) -> None:
     hardware = await client.get("/api/v1/technology/training/hardware")
     manifest_payload = _manifest_payload()
     validation = await client.post(
@@ -21,7 +23,7 @@ async def test_training_hardware_and_base_model_api(client: AsyncClient) -> None
     )
     created = await client.post(
         "/api/v1/technology/training/base-models",
-        headers={"x-devmind-admin": "local-admin"},
+        headers=admin_headers,
         json=manifest_payload,
     )
     listed = await client.get("/api/v1/technology/training/base-models")
@@ -59,7 +61,7 @@ def _manifest_payload() -> dict[str, object]:
         "minimum_recommended_hardware": {"ram_gb": 8},
         "human_license_review_status": "approved",
         "approval_status": "approved",
-        "created_by": "local-admin",
+        "created_by": "test-admin",
         "created_at": now,
         "updated_at": now,
     }

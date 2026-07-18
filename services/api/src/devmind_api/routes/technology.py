@@ -1,10 +1,13 @@
 import json
 from collections.abc import AsyncIterator
+from dataclasses import replace
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
 from starlette import status
 
+from devmind_api.auth.dependencies import require_permission
+from devmind_api.auth.models import Permission
 from devmind_api.config import Settings, get_settings
 from devmind_api.db import MongoDatabase, get_database
 from devmind_api.exceptions import DevMindError
@@ -45,12 +48,18 @@ def get_service(database: DatabaseDep, settings: SettingsDep) -> TechnologyStude
 
 
 ServiceDep = Annotated[TechnologyStudentService, Depends(get_service)]
+SourceReviewDep = Annotated[Any, Depends(require_permission(Permission.SOURCES_REVIEW))]
 
 
 @router.post("/sources", status_code=status.HTTP_201_CREATED)
-async def register_source(request: RegisterSourceRequest, service: ServiceDep) -> Any:
+async def register_source(
+    request: RegisterSourceRequest, service: ServiceDep, principal: SourceReviewDep
+) -> Any:
     try:
-        return await service.register_source(_source_registration_from_web(request))
+        registration = replace(
+            _source_registration_from_web(request), created_by=principal.user.user_id
+        )
+        return await service.register_source(registration)
     except TechnologyServiceError as exc:
         raise DevMindError(str(exc), status.HTTP_400_BAD_REQUEST) from exc
     except ValueError as exc:
@@ -81,7 +90,9 @@ async def read_source(source_id: str, database: DatabaseDep) -> Any:
 
 
 @router.patch("/sources/{source_id}")
-async def update_source(source_id: str, request: SourceUpdateRequest, database: DatabaseDep) -> Any:
+async def update_source(
+    source_id: str, request: SourceUpdateRequest, database: DatabaseDep, _: SourceReviewDep
+) -> Any:
     updates = request.model_dump(mode="python", exclude_none=True)
     if "license_url" in updates:
         updates["license_url"] = str(updates["license_url"])
@@ -92,10 +103,12 @@ async def update_source(source_id: str, request: SourceUpdateRequest, database: 
 
 
 @router.post("/sources/{source_id}/review")
-async def review_source(source_id: str, request: SourceReviewRequest, service: ServiceDep) -> Any:
+async def review_source(
+    source_id: str, request: SourceReviewRequest, service: ServiceDep, principal: SourceReviewDep
+) -> Any:
     try:
         return await service.approve_source(
-            source_id, request.reviewer, request.approved, request.notes
+            source_id, principal.user.user_id, request.approved, request.notes
         )
     except TechnologyServiceError as exc:
         raise DevMindError(str(exc), status.HTTP_404_NOT_FOUND) from exc
@@ -106,6 +119,7 @@ async def deactivate_source(
     source_id: str,
     request: DeactivateSourceRequest,
     database: DatabaseDep,
+    _: SourceReviewDep,
 ) -> Any:
     updated = await TechnologyRepository(database).update_source(
         source_id,
@@ -129,13 +143,17 @@ async def read_source_history(source_id: str) -> dict[str, Any]:
 async def upload_source_file(
     service: ServiceDep,
     database: DatabaseDep,
+    principal: SourceReviewDep,
     metadata_json: Annotated[str, Form(alias="metadata")],
     file: Annotated[UploadFile, File()],
 ) -> Any:
     try:
         metadata = RegisterFileSourceRequest.model_validate(json.loads(metadata_json))
         data = await file.read()
-        registration = _source_registration_from_file(metadata, file.filename or "upload")
+        registration = replace(
+            _source_registration_from_file(metadata, file.filename or "upload"),
+            created_by=principal.user.user_id,
+        )
         source = await service.upload_and_register(
             filename=file.filename or "upload", data=data, registration=registration
         )
@@ -184,7 +202,7 @@ async def read_parsing_result(source_id: str, database: DatabaseDep) -> Any:
 
 
 @router.delete("/uploads/{source_id}")
-async def deactivate_upload(source_id: str, database: DatabaseDep) -> Any:
+async def deactivate_upload(source_id: str, database: DatabaseDep, _: SourceReviewDep) -> Any:
     updated = await TechnologyRepository(database).update_source(
         source_id,
         {"source_status": SourceStatus.INACTIVE.value, "deactivation_reason": "upload deactivated"},
@@ -195,7 +213,9 @@ async def deactivate_upload(source_id: str, database: DatabaseDep) -> Any:
 
 
 @router.post("/ingestion/jobs", response_model=IngestionReportResponse)
-async def start_ingestion(request: IngestionStartRequest, service: ServiceDep) -> Any:
+async def start_ingestion(
+    request: IngestionStartRequest, service: ServiceDep, _: SourceReviewDep
+) -> Any:
     try:
         report = await service.ingest_source_url(request.source_id)
     except TechnologyServiceError as exc:
@@ -219,13 +239,13 @@ async def read_ingestion_job(job_id: str, database: DatabaseDep) -> Any:
 
 
 @router.post("/ingestion/jobs/{job_id}/retry")
-async def retry_ingestion_job(job_id: str, database: DatabaseDep) -> Any:
+async def retry_ingestion_job(job_id: str, database: DatabaseDep, _: SourceReviewDep) -> Any:
     await TechnologyRepository(database).update_ingestion_job(job_id, {"state": "queued"})
     return {"job_id": job_id, "state": "queued"}
 
 
 @router.post("/ingestion/jobs/{job_id}/cancel")
-async def cancel_ingestion_job(job_id: str, database: DatabaseDep) -> Any:
+async def cancel_ingestion_job(job_id: str, database: DatabaseDep, _: SourceReviewDep) -> Any:
     await TechnologyRepository(database).update_ingestion_job(job_id, {"state": "cancelled"})
     return {"job_id": job_id, "state": "cancelled"}
 

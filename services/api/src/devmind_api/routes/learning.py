@@ -1,9 +1,11 @@
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Header, Query
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 from starlette import status
 
+from devmind_api.auth.dependencies import require_permission
+from devmind_api.auth.models import Permission
 from devmind_api.config import Settings, get_settings
 from devmind_api.db import MongoDatabase, get_database
 from devmind_api.exceptions import DevMindError
@@ -28,11 +30,11 @@ class CreateLearningCycleRequest(BaseModel):
     topic: str = Field(min_length=2, max_length=120)
     objectives: list[str] = Field(min_length=1, max_length=20)
     maximum_examples: int = Field(default=5, ge=1, le=500)
-    human_owner: str = Field(default="local-admin", min_length=2, max_length=120)
+    human_owner: str = Field(default="authenticated-user", min_length=2, max_length=120)
 
 
 class ReviewActionRequest(BaseModel):
-    reviewer_id: str = Field(default="local-admin", min_length=2, max_length=120)
+    reviewer_id: str = Field(default="authenticated-user", min_length=2, max_length=120)
     note: str | None = Field(default=None, max_length=2000)
     edited_answer: str | None = Field(default=None, max_length=20000)
     rejection_reason: str | None = Field(default=None, max_length=2000)
@@ -42,7 +44,7 @@ class CreateDatasetVersionRequest(BaseModel):
     dataset_candidate_id: str
     name: str = Field(min_length=2, max_length=120)
     description: str = Field(min_length=5, max_length=1000)
-    creator: str = Field(default="local-admin", min_length=2, max_length=120)
+    creator: str = Field(default="authenticated-user", min_length=2, max_length=120)
 
 
 class BuildDatasetRecordRequest(BaseModel):
@@ -57,19 +59,13 @@ def get_orchestrator(database: DatabaseDep, settings: SettingsDep) -> LearningOr
 
 
 OrchestratorDep = Annotated[LearningOrchestrator, Depends(get_orchestrator)]
-
-
-async def require_admin_placeholder(
-    x_devmind_admin: Annotated[str | None, Header(alias="x-devmind-admin")] = None,
-) -> None:
-    if x_devmind_admin != "local-admin":
-        raise DevMindError(
-            "Administrative placeholder header x-devmind-admin=local-admin is required",
-            status.HTTP_403_FORBIDDEN,
-        )
-
-
-AdminDep = Annotated[None, Depends(require_admin_placeholder)]
+TrainingConfigureDep = Annotated[Any, Depends(require_permission(Permission.TRAINING_CONFIGURE))]
+TrainingStartDep = Annotated[Any, Depends(require_permission(Permission.TRAINING_START))]
+TrainingCancelDep = Annotated[Any, Depends(require_permission(Permission.TRAINING_CANCEL))]
+DatasetReviewDep = Annotated[Any, Depends(require_permission(Permission.DATASETS_REVIEW))]
+DatasetApproveDep = Annotated[Any, Depends(require_permission(Permission.DATASETS_APPROVE))]
+DatasetExportDep = Annotated[Any, Depends(require_permission(Permission.DATASETS_EXPORT))]
+CandidateCreateDep = Annotated[Any, Depends(require_permission(Permission.CANDIDATES_CREATE))]
 
 
 @router.get("/curriculum")
@@ -106,13 +102,15 @@ async def recommend_next_learning_action(orchestrator: OrchestratorDep) -> Any:
 
 @router.post("/cycles", status_code=status.HTTP_201_CREATED)
 async def create_learning_cycle(
-    request: CreateLearningCycleRequest, orchestrator: OrchestratorDep, _: AdminDep
+    request: CreateLearningCycleRequest,
+    orchestrator: OrchestratorDep,
+    principal: TrainingConfigureDep,
 ) -> Any:
     return await orchestrator.cycles.create_planned_cycle(
         domain=request.domain,
         topic=request.topic,
         objectives=request.objectives,
-        human_owner=request.human_owner,
+        human_owner=principal.user.user_id,
         maximum_examples=request.maximum_examples,
     )
 
@@ -131,7 +129,9 @@ async def read_learning_cycle(cycle_id: str, database: DatabaseDep) -> Any:
 
 
 @router.post("/cycles/{cycle_id}/start")
-async def start_learning_cycle(cycle_id: str, orchestrator: OrchestratorDep, _: AdminDep) -> Any:
+async def start_learning_cycle(
+    cycle_id: str, orchestrator: OrchestratorDep, _: TrainingStartDep
+) -> Any:
     try:
         return await orchestrator.cycles.transition(cycle_id, LearningCycleStatus.COLLECTING)
     except LearningServiceError as exc:
@@ -139,7 +139,7 @@ async def start_learning_cycle(cycle_id: str, orchestrator: OrchestratorDep, _: 
 
 
 @router.post("/cycles/{cycle_id}/pause")
-async def pause_learning_cycle(cycle_id: str, database: DatabaseDep, _: AdminDep) -> Any:
+async def pause_learning_cycle(cycle_id: str, database: DatabaseDep, _: TrainingCancelDep) -> Any:
     updated = await LearningRepository(database).update_learning_cycle(
         cycle_id, {"status": LearningCycleStatus.PLANNED.value}
     )
@@ -149,7 +149,9 @@ async def pause_learning_cycle(cycle_id: str, database: DatabaseDep, _: AdminDep
 
 
 @router.post("/cycles/{cycle_id}/cancel")
-async def cancel_learning_cycle(cycle_id: str, orchestrator: OrchestratorDep, _: AdminDep) -> Any:
+async def cancel_learning_cycle(
+    cycle_id: str, orchestrator: OrchestratorDep, _: TrainingCancelDep
+) -> Any:
     try:
         return await orchestrator.cycles.transition(cycle_id, LearningCycleStatus.CANCELLED)
     except LearningServiceError as exc:
@@ -166,7 +168,7 @@ async def read_cycle_metrics(cycle_id: str, database: DatabaseDep) -> Any:
 
 @router.post("/cycles/{cycle_id}/questions")
 async def generate_cycle_questions(
-    cycle_id: str, orchestrator: OrchestratorDep, _: AdminDep
+    cycle_id: str, orchestrator: OrchestratorDep, _: TrainingStartDep
 ) -> Any:
     try:
         return {"questions": await orchestrator.questions.generate_for_cycle(cycle_id)}
@@ -189,7 +191,7 @@ async def read_generated_question(question_id: str, database: DatabaseDep) -> An
 
 @router.post("/questions/{question_id}/candidate")
 async def create_candidate_answer(
-    question_id: str, orchestrator: OrchestratorDep, _: AdminDep
+    question_id: str, orchestrator: OrchestratorDep, _: CandidateCreateDep
 ) -> Any:
     try:
         question = await orchestrator.repository.get_question(question_id)
@@ -253,12 +255,15 @@ async def read_review_item(review_id: str, database: DatabaseDep) -> Any:
 
 @router.post("/reviews/{review_id}/approve")
 async def approve_review(
-    review_id: str, request: ReviewActionRequest, orchestrator: OrchestratorDep, _: AdminDep
+    review_id: str,
+    request: ReviewActionRequest,
+    orchestrator: OrchestratorDep,
+    principal: DatasetApproveDep,
 ) -> Any:
     try:
         return await orchestrator.reviews.act(
             review_id=review_id,
-            reviewer_id=request.reviewer_id,
+            reviewer_id=principal.user.user_id,
             action="approve",
             note=request.note,
         )
@@ -268,12 +273,15 @@ async def approve_review(
 
 @router.post("/reviews/{review_id}/reject")
 async def reject_review(
-    review_id: str, request: ReviewActionRequest, orchestrator: OrchestratorDep, _: AdminDep
+    review_id: str,
+    request: ReviewActionRequest,
+    orchestrator: OrchestratorDep,
+    principal: DatasetReviewDep,
 ) -> Any:
     try:
         return await orchestrator.reviews.act(
             review_id=review_id,
-            reviewer_id=request.reviewer_id,
+            reviewer_id=principal.user.user_id,
             action="reject",
             rejection_reason=request.rejection_reason or request.note,
         )
@@ -283,12 +291,15 @@ async def reject_review(
 
 @router.post("/reviews/{review_id}/edit-and-approve")
 async def edit_and_approve_review(
-    review_id: str, request: ReviewActionRequest, orchestrator: OrchestratorDep, _: AdminDep
+    review_id: str,
+    request: ReviewActionRequest,
+    orchestrator: OrchestratorDep,
+    principal: DatasetApproveDep,
 ) -> Any:
     try:
         return await orchestrator.reviews.act(
             review_id=review_id,
-            reviewer_id=request.reviewer_id,
+            reviewer_id=principal.user.user_id,
             action="edit_and_approve",
             note=request.note,
             edited_answer=request.edited_answer,
@@ -299,12 +310,15 @@ async def edit_and_approve_review(
 
 @router.post("/reviews/{review_id}/request-regeneration")
 async def request_regeneration(
-    review_id: str, request: ReviewActionRequest, orchestrator: OrchestratorDep, _: AdminDep
+    review_id: str,
+    request: ReviewActionRequest,
+    orchestrator: OrchestratorDep,
+    principal: DatasetReviewDep,
 ) -> Any:
     try:
         return await orchestrator.reviews.act(
             review_id=review_id,
-            reviewer_id=request.reviewer_id,
+            reviewer_id=principal.user.user_id,
             action="request_regeneration",
             note=request.note,
         )
@@ -332,7 +346,7 @@ async def read_dataset_candidate(dataset_candidate_id: str, database: DatabaseDe
 
 @router.post("/dataset-records", status_code=status.HTTP_201_CREATED)
 async def build_dataset_record(
-    request: BuildDatasetRecordRequest, orchestrator: OrchestratorDep, _: AdminDep
+    request: BuildDatasetRecordRequest, orchestrator: OrchestratorDep, _: DatasetApproveDep
 ) -> Any:
     try:
         return await orchestrator.datasets.build_from_review(
@@ -344,11 +358,13 @@ async def build_dataset_record(
 
 @router.post("/dataset-versions", status_code=status.HTTP_201_CREATED)
 async def create_dataset_version(
-    request: CreateDatasetVersionRequest, orchestrator: OrchestratorDep, _: AdminDep
+    request: CreateDatasetVersionRequest,
+    orchestrator: OrchestratorDep,
+    principal: DatasetApproveDep,
 ) -> Any:
     try:
         return await orchestrator.versions.create_version(
-            request.dataset_candidate_id, request.name, request.description, request.creator
+            request.dataset_candidate_id, request.name, request.description, principal.user.user_id
         )
     except (LearningServiceError, ValueError) as exc:
         raise DevMindError(str(exc), status.HTTP_400_BAD_REQUEST) from exc
@@ -369,7 +385,7 @@ async def read_dataset_version(dataset_version_id: str, database: DatabaseDep) -
 
 @router.post("/dataset-versions/{dataset_version_id}/export")
 async def export_dataset_version(
-    dataset_version_id: str, orchestrator: OrchestratorDep, _: AdminDep
+    dataset_version_id: str, orchestrator: OrchestratorDep, _: DatasetExportDep
 ) -> Any:
     try:
         return await orchestrator.exporter.export_version(dataset_version_id)
@@ -415,7 +431,7 @@ async def validate_training_config(request: TrainingConfig, orchestrator: Orches
 
 @router.post("/model-candidates", status_code=status.HTTP_201_CREATED)
 async def register_model_candidate(
-    request: ModelCandidate, orchestrator: OrchestratorDep, _: AdminDep
+    request: ModelCandidate, orchestrator: OrchestratorDep, _: CandidateCreateDep
 ) -> Any:
     try:
         candidate = await orchestrator.model_candidates.register(request)
